@@ -1,7 +1,2 @@
-﻿  Main.cpp
-  MainController.cpp
-  ProjectDAO.cpp
-  ProjectManager.cpp
-  ShowMenu.cpp
-  코드를 생성하고 있습니다...
-  DBProject.vcxproj -> D:\Project\ODBC Project\ODBC-Q-And-A-Project\DBProject\Debug\DBProject.exe
+﻿  ProjectDAO.cpp
+  DBProject.vcxproj -> C:\Users\user\source\repos\ODBC Project\ODBC-Q-And-A-Project\DBProject\Debug\DBProject.exe

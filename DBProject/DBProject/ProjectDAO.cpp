@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <iostream>
 #include "ProjectDAO.h"
 
 using namespace std;
@@ -93,24 +94,24 @@ void ProjectDAO::PrintAllArea()
 			}
 			else if (i > 2)
 			{
-				SQLBindCol(hStmt, i, SQL_C_CHAR, areaData[i], 100, &nullData[i]);
+				SQLBindCol(hStmt, i + 1, SQL_C_CHAR, areaData[i - 1], 100, &nullData[i - 1]);
 			}
 
 		}
 		SQLBindCol(hStmt, 3, SQL_C_CHAR, areaData[colCount - 1], 100, &nullData[colCount - 1]);
 
-
+		printf("%-10s %-10s %-10s %-10s %-10s\n", "대분류", "소분류", "질문 수", "전문가ID", "도메인번호");
 		while (SQLFetch(hStmt) != SQL_NO_DATA)
 		{
 			for (int i = 0; i < colCount - 1; i++)
 			{
 				if (nullData[i] == SQL_NULL_DATA)
 				{
-					printf("%s", "NULL");
+					printf("%-10s ", "NULL");
 				}
 				else
 				{
-					printf("%s", areaData[i]);
+					printf("%-10s ", areaData[i]);
 				}
 			}
 
@@ -118,14 +119,14 @@ void ProjectDAO::PrintAllArea()
 
 			if (nullData[colCount - 1] == SQL_NULL_DATA)
 			{
-				printf("%s", "NULL");
+				printf("%s ", "NULL");
 			}
 			else
 			{
 				printf("%s", areaData[colCount - 1]);
 			}
 
-			printf("\n");
+			printf("\n\n");
 		}
 
 		SQLCloseCursor(hStmt);
@@ -146,24 +147,25 @@ void ProjectDAO::PrintQuestionsInSeletedArea(char * bigClass, char * subClass)
 		SQLExecDirect(hStmt, query, SQL_NTS);
 
 		SQLBindCol(hStmt, 1, SQL_C_CHAR, data.queNum, LENGTH_QUENUM, &nullData.nullQueNum);
-		SQLBindCol(hStmt, 2, SQL_C_CHAR, data.queDomainNum, LENGTH_QUENUM, &nullData.nullQueDomainNum);
-		SQLBindCol(hStmt, 3, SQL_C_CHAR, data.queID, LENGTH_QUENUM, &nullData.nullQueID);
-		SQLBindCol(hStmt, 4, SQL_C_CHAR, data.queDate, LENGTH_QUENUM, &nullData.nullQueDate);
-		SQLBindCol(hStmt, 5, SQL_C_CHAR, data.queTitle, LENGTH_QUENUM, &nullData.nullQueTitle);
-		SQLBindCol(hStmt, 6, SQL_C_CHAR, data.queContents, LENGTH_QUENUM, &nullData.nullQueContents);
+		SQLBindCol(hStmt, 2, SQL_C_CHAR, data.queDomainNum, LENGTH_DOMAIN_NUM, &nullData.nullQueDomainNum);
+		SQLBindCol(hStmt, 3, SQL_C_CHAR, data.queID, LENGTH_ID, &nullData.nullQueID);
+		SQLBindCol(hStmt, 4, SQL_C_CHAR, data.queDate, LENGTH_DATE, &nullData.nullQueDate);
+		SQLBindCol(hStmt, 5, SQL_C_CHAR, data.queTitle, LENGTH_TITLE, &nullData.nullQueTitle);
+		SQLBindCol(hStmt, 6, SQL_C_CHAR, data.queContents, LENGTH_CONTENTS, &nullData.nullQueContents);
 
 		while (SQLFetch(hStmt) != SQL_NO_DATA)
 		{
-			printf("%-6s %-6s ", data.queNum, data.queDomainNum);
+			printf("%-10s %-10s %-10s %-10s\n", "질문번호", "도메인번호", "아이디", "작성일");
+			printf("%-10s %-10s ", data.queNum, data.queDomainNum);
 			if (nullData.nullQueID == SQL_NULL_DATA)
 			{
-				printf("%-6s ", "NULL");
+				printf("%-10s ", "NULL");
 			}
 			else
 			{
-				printf("%-6s ", data.queID);
+				printf("%-10s ", data.queID);
 			}
-			printf("%-6s \n", data.queDate);
+			printf("%-10s \n", data.queDate);
 			printf("Title : %s \n\n", data.queTitle);
 			printf("%s\n\n", data.queContents);
 		}
