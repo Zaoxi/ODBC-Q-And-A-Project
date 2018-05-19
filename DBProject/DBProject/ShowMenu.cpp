@@ -31,7 +31,7 @@ void ShowMenu::ShowAreaMenu()
 	cout << " - 원하시는 작업을 선택하세요." << endl;
 	showLine();
 	cout << "1. 모든 Area 데이터 출력" << endl;
-	cout << "2. 선택된 대분류 데이터만 출력(2Table Join, 3Table Join, 4Table Join 작업이 있습니다.)" << endl;
+	cout << "2. 대분류, 소분류 선택 후, 해당 데이터 출력(2Table Join, 3Table Join, 4Table Join 작업이 있습니다.)" << endl;
 	cout << "0. 뒤로 가기" << endl;
 	showLine();
 	cout << " >> ";
@@ -40,10 +40,11 @@ void ShowMenu::ShowAreaMenu()
 void ShowMenu::ShowSelectedAreaMenu()
 {
 	showLine();
-	cout << "1. 이 분야의 질문을 출력(2Table Join)" << endl;
-	cout << "2. 이 분야의 질문을 작성한 유저들의 정보를 출력(3Table Join)" << endl;
-	cout << "3. 이 분야의 질문에 대한 답변들을 출력(3Table Join)" << endl;
-	cout << "4. 이 분야의 질문에 대한 답변을 작성한 유저들의 정보를 출력(4Table Join)" << endl;
+	cout << "1. 이 분야의 모든 질문을 출력(2Table Join)" << endl;
+	cout << "2. 이 분야의 질문을 작성한 모든 유저들의 정보를 출력(3Table Join)" << endl;
+	cout << "3. 이 분야의 질문에 대한 모든 답변들을 출력(3Table Join)" << endl;
+	cout << "4. 이 분야의 질문에 대한 답변을 작성한 모든 유저들의 정보를 출력(4Table Join)" << endl;
+	cout << "0. 뒤로 가기" << endl;
 	showLine();
 	cout << " >> ";
 }

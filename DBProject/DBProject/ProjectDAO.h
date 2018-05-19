@@ -2,6 +2,13 @@
 #include <Windows.h>
 #include <sql.h>
 #include <sqlext.h>
+#define LENGTH_QUENUM 10
+#define LENGTH_ID 40
+#define LENGTH_DOMAIN_NUM 10
+#define LENGTH_DATE 15
+#define LENGTH_TITLE 100
+#define LENGTH_CONTENTS 4000
+
 //#define LENGTH_BIGCLASS 20
 //#define LENGTH_SMALLCLASS 20
 //#define LENGTH_CONTENTS 100
@@ -28,10 +35,30 @@
 //	SQLINTEGER expertDomainNum;
 //} nullArea;
 
+typedef struct _AreaQuestionJoin
+{
+	SQLCHAR queNum[LENGTH_QUENUM];
+	SQLCHAR queID[LENGTH_ID];
+	SQLCHAR	queDomainNum[LENGTH_DOMAIN_NUM];
+	SQLCHAR queDate[LENGTH_DATE];
+	SQLCHAR queTitle[LENGTH_TITLE];
+	SQLCHAR queContents[LENGTH_CONTENTS];
+} AreaQuestionJoin;
+
+typedef struct _nullAreaQuestionJoin
+{
+	SQLINTEGER nullQueNum;
+	SQLINTEGER nullQueID;
+	SQLINTEGER nullQueDomainNum;
+	SQLINTEGER nullQueDate;
+	SQLINTEGER nullQueTitle;
+	SQLINTEGER nullQueContents;
+} nullAreaQuetionJoin;
+
 class ProjectDAO
 {
 private:
-	bool isConnected = false;
+	bool bisConnected = false;
 	SQLHENV hEnv = NULL;
 	SQLHDBC hDbc = NULL;
 	SQLCHAR query[100];
@@ -43,7 +70,7 @@ private:
 public:
 	ProjectDAO();
 	~ProjectDAO();
-
+	bool GetbIsConnected();
 	void PrintAllArea();
-	
+	void PrintQuestionsInSeletedArea(char * bigClass, char * subClass);
 };
