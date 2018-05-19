@@ -1,8 +1,7 @@
 #include <iostream>
-#include "ProjectDAO.h"
+#include "MainController.h"
 
 int main(int args, char * argv[])
 {
-	ProjectDAO * dao = new ProjectDAO();
-	delete dao;
+	new MainController();
 }

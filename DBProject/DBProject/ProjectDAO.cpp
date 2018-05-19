@@ -64,3 +64,43 @@ ProjectDAO::~ProjectDAO()
 		printf("Disconnection Success!!\n");
 	}
 }
+
+void ProjectDAO::PrintAllArea()
+{
+	SQLHSTMT hStmt;
+
+	SQLSMALLINT colCount = -1;
+	SQLCHAR areaData[30][100];
+	SQLINTEGER nullData[30];
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char *)query, "SELECT * FROM AREA");
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLNumResultCols(hStmt, &colCount);
+
+		for (int i = 0; i < colCount; i++)
+		{
+			SQLBindCol(hStmt, i + 1, SQL_C_CHAR, areaData[i], 100, &nullData[i]);
+		}
+
+		while (SQLFetch(hStmt) != SQL_NO_DATA)
+		{
+			for (int i = 0; i < colCount; i++)
+			{
+				if (nullData[i] == SQL_NULL_DATA)
+				{
+					printf("%-6s", "NULL");
+				}
+				else
+				{
+					printf("%-6s", areaData[i]);
+				}
+			}
+			printf("\n");
+		}
+
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}

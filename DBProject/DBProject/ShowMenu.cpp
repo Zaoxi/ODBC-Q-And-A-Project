@@ -19,6 +19,7 @@ void ShowMenu::ShowMainMenu()
 	cout << "2. Question 테이블 참조" << endl;
 	cout << "3. Domain 테이블 참조" << endl;
 	cout << "4. User 테이블 참조" << endl;
+	cout << "0. 프로그램 종료" << endl;
 	showLine();
 	cout << " >> ";
 }
@@ -31,6 +32,7 @@ void ShowMenu::ShowAreaMenu()
 	showLine();
 	cout << "1. 모든 Area 데이터 출력" << endl;
 	cout << "2. 선택된 대분류 데이터만 출력(2Table Join, 3Table Join, 4Table Join 작업이 있습니다.)" << endl;
+	cout << "0. 뒤로 가기" << endl;
 	showLine();
 	cout << " >> ";
 }

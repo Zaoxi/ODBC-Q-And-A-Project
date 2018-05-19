@@ -39,7 +39,7 @@
     <ClCompile Include="ProjectManager.cpp">
       <Filter>소스 파일\Control</Filter>
     </ClCompile>
-    <ClCompile Include="MenuController.cpp">
+    <ClCompile Include="MainController.cpp">
       <Filter>소스 파일\Control</Filter>
     </ClCompile>
   </ItemGroup>
@@ -53,7 +53,7 @@
     <ClInclude Include="ProjectManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="MenuController.h">
+    <ClInclude Include="MainController.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
