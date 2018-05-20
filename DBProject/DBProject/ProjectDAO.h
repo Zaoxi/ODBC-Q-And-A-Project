@@ -35,6 +35,7 @@
 //	SQLINTEGER expertDomainNum;
 //} nullArea;
 
+#pragma region DAO 데이터 처리에 필요한 각종 구조체 정의
 typedef struct _AreaQuestionJoin
 {
 	SQLCHAR queNum[LENGTH_QUENUM];
@@ -54,6 +55,7 @@ typedef struct _nullAreaQuestionJoin
 	SQLINTEGER nullQueTitle;
 	SQLINTEGER nullQueContents;
 } nullAreaQuetionJoin;
+#pragma endregion
 
 class ProjectDAO
 {
@@ -67,6 +69,8 @@ private:
 	// DB 연결 해제하는 메소드, 소멸자에서 호출
 	void DBDisconnect();
 
+	// Area 테이블의 질문 개수 속성을 초기화 하는 메소드
+	void InitializeAreaCount();
 public:
 	ProjectDAO();
 	~ProjectDAO();

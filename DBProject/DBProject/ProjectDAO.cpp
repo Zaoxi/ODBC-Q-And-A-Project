@@ -43,6 +43,26 @@ void ProjectDAO::DBDisconnect()
 	SQLFreeHandle(SQL_HANDLE_ENV, hEnv);
 }
 
+// 작업 필요 부분
+void ProjectDAO::InitializeAreaCount()
+{
+	SQLHSTMT hStmt;
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char *)query, "UPDATE AREA SET COUNT_QUERY = COUNT(SELECT QUE_NUM FROM QUESTION WHERE ");
+		SQLExecDirect(hStmt, query, SQL_NTS);
+
+		while (SQLFetch(hStmt) != SQL_NO_DATA)
+		{
+		}
+
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+
 ProjectDAO::ProjectDAO()
 {
 	bisConnected = DBConnect();
