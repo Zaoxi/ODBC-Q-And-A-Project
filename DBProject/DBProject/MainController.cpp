@@ -98,29 +98,18 @@ void MainController::selectedAreaControl()
 		{
 			showOutOfIndex();
 		}
+		if (select == '0')
+		{
+			return;
+		}
 		else
 		{
-			switch (select)
-			{
-			case '1':
-				allQuestionsInSeletedArea();
-				return;
-			case '2':
-				return;
-			case '3':
-				return;
-			case '4':
-				return;
-			case '0':
-				return;
-			default:
-				break;
-			}
+			allDataInSeletedArea(select);
 		}
 	}
 }
 
-void MainController::allQuestionsInSeletedArea()
+void MainController::allDataInSeletedArea(char select)
 {
 	char bigClass[20], smallClass[20];
 	cout << "대분류 >> ";
@@ -128,7 +117,20 @@ void MainController::allQuestionsInSeletedArea()
 	cout << "소분류 >> ";
 	cin >> smallClass;
 	
-	dao->PrintQuestionsInSeletedArea(bigClass, smallClass);
+	switch (select)
+	{
+	case '1':
+		dao->PrintQuestionsInSeletedArea(bigClass, smallClass);
+		return;
+	case '2':
+		dao->PrintUsersInSelectedArea(bigClass, smallClass);
+		return;
+	case '3':
+		dao->PrintAnswersInSelectedArea(bigClass, smallClass);
+		return;
+	case '4':
+		return;
+	}
 }
 
 MainController::~MainController()

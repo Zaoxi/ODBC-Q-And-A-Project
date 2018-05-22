@@ -14,8 +14,9 @@ private :
 	void areaControl();
 	// 분야 서브 메뉴 컨트롤 메소드
 	void selectedAreaControl();
-	// 분야 서브 메뉴의 첫번째 메뉴 컨트롤 메소드
-	void allQuestionsInSeletedArea();
+	// 선택된 분야와 관련된 정보 모두 출력
+	void allDataInSeletedArea(char select);
+
 public :
 	// 멤버 변수를 초기화 하면서 메인메뉴선택 출력
 	MainController();
