@@ -9,8 +9,6 @@ public :
 	void ShowMainMenu();
 	void ShowAreaMenu();
 	void ShowSelectedAreaMenu();
-	void ShowQuestionMenu();
-	void ShowDomainMenu();
-	void ShowUserMenu();
+	void ShowSchema();
 };
 

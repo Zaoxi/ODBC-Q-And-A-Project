@@ -24,7 +24,7 @@ MainController::MainController()
 		menu->ShowMainMenu();
 		cin >> select;
 
-		if (select < '0' || select > '4')
+		if (select < '0' || select > '3')
 		{
 			showOutOfIndex();
 		}
@@ -36,10 +36,10 @@ MainController::MainController()
 				areaControl();
 				break;
 			case '2':
+				menu->ShowSchema();
 				break;
 			case '3':
-				break;
-			case '4':
+				dao->ExecuteSelectSQL();
 				break;
 			case '0':
 				delete this;
@@ -129,6 +129,7 @@ void MainController::allDataInSeletedArea(char select)
 		dao->PrintAnswersInSelectedArea(bigClass, smallClass);
 		return;
 	case '4':
+		dao->PrintResponseUsersInSelectedArea(bigClass, smallClass);
 		return;
 	}
 }

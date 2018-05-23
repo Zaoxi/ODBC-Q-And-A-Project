@@ -59,7 +59,7 @@ typedef struct _users
 
 typedef struct _nullusers
 {
-	SQLINTEGER nullJoinDate;
+	SQLINTEGER joinDate;
 	SQLINTEGER userEmail;
 	SQLINTEGER userJob;
 } nullUserData;
@@ -105,4 +105,8 @@ public:
 	void PrintUsersInSelectedArea(char * bigClass, char * subClass);
 
 	void PrintAnswersInSelectedArea(char * bigClass, char * subClass);
+
+	void PrintResponseUsersInSelectedArea(char * bigClass, char * subClass);
+
+	void ExecuteSelectSQL();
 };

@@ -239,14 +239,14 @@ void ProjectDAO::PrintUsersInSelectedArea(char * bigClass, char * subClass)
 
 		SQLBindCol(hStmt, 1, SQL_C_CHAR, &(userData.domainNum), LENGTH_DOMAIN_NUM, NULL);
 		SQLBindCol(hStmt, 2, SQL_C_CHAR, &(userData.userID), LENGTH_ID, NULL);
-		SQLBindCol(hStmt, 3, SQL_C_CHAR, &(userData.userJoinDate), LENGTH_DATE, &(nullUserData.nullJoinDate));
+		SQLBindCol(hStmt, 3, SQL_C_CHAR, &(userData.userJoinDate), LENGTH_DATE, &(nullUserData.joinDate));
 		SQLBindCol(hStmt, 4, SQL_C_CHAR, &(userData.userEmail), LENGTH_EMAIL, &(nullUserData.userEmail));
 		SQLBindCol(hStmt, 5, SQL_C_CHAR, &(userData.userJob), LENGTH_JOB, &(nullUserData.userJob));
 
-		printf("%-10s %-15s %-10s %-20s %-10s\n", "도메인번호", "아이디", "가입일", "이메일", "직업");
+		printf("%-10s %-15s %-10s %-25s %-10s\n", "도메인번호", "아이디", "가입일", "이메일", "직업");
 		while (SQLFetch(hStmt) != SQL_NO_DATA)
 		{
-			printf("%-10s %-15s %-10s %-20s ", userData.domainNum, userData.userID, userData.userJoinDate, userData.userEmail);
+			printf("%-10s %-15s %-10s %-25s ", userData.domainNum, userData.userID, userData.userJoinDate, userData.userEmail);
 			if (nullUserData.userJob == SQL_NULL_DATA)
 			{
 				printf("NULL ");
@@ -279,7 +279,7 @@ void ProjectDAO::PrintAnswersInSelectedArea(char * bigClass, char * subClass)
 		SQLBindCol(hStmt, 4, SQL_C_CHAR, &(resData.date), LENGTH_DATE, &(nullResData.data));
 		SQLBindCol(hStmt, 5, SQL_C_CHAR, &(resData.contents), LENGTH_CONTENTS, NULL);
 
-		
+
 		while (SQLFetch(hStmt) != SQL_NO_DATA)
 		{
 			printf("%-10s %-10s %-15s %-10s\n", "질문번호", "도메인번호", "ID", "작성일");
@@ -294,6 +294,87 @@ void ProjectDAO::PrintAnswersInSelectedArea(char * bigClass, char * subClass)
 			}
 			printf("%-10s \n %-10s \n", resData.date, resData.contents);
 		}
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+void ProjectDAO::PrintResponseUsersInSelectedArea(char * bigClass, char * subClass)
+{
+	SQLHSTMT hStmt;
+	UserData user;
+	nullUserData nullUser;
+	char resNum[LENGTH_QUENUM];
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char *)query, "SELECT R.RES_NUM, U.USER_DOMAIN_NUM, U.USER_ID, U.USER_JOIN_DATE, U.USER_EMAIL, U.USER_JOB FROM AREA AS A, QUESTION AS Q, RESPOND AS QR, RESPONSE AS R, USERS AS U WHERE A.AREA_BIG_CLASS = '%s' AND A.AREA_SUB_CLASS = '%s' AND Q.QUE_BIG_CLASS = A.AREA_BIG_CLASS AND Q.QUE_SUB_CLASS = A.AREA_SUB_CLASS AND QR.QUE_NUM = Q.QUE_NUM AND R.RES_NUM = QR.RES_NUM AND U.USER_DOMAIN_NUM = R.RES_DOMAIN_NUM AND U.USER_ID = R.RES_ID", bigClass, subClass);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+
+		SQLBindCol(hStmt, 1, SQL_C_CHAR, &resNum, LENGTH_DOMAIN_NUM, NULL);
+		SQLBindCol(hStmt, 2, SQL_C_CHAR, &(user.domainNum), LENGTH_DOMAIN_NUM, NULL);
+		SQLBindCol(hStmt, 3, SQL_C_CHAR, &(user.userID), LENGTH_ID, NULL);
+		SQLBindCol(hStmt, 4, SQL_C_CHAR, &(user.userJoinDate), LENGTH_DATE, &(nullUser.joinDate));
+		SQLBindCol(hStmt, 5, SQL_C_CHAR, &(user.userEmail), LENGTH_EMAIL, &(nullUser.userEmail));
+		SQLBindCol(hStmt, 6, SQL_C_CHAR, &(user.userJob), LENGTH_JOB, &(nullUser.userJob));
+
+		printf("%-10s %-10s %-15s %-10s %-25s %-10s\n", "답변번호", "도메인번호", "아이디", "가입일", "이메일", "직업");
+		while (SQLFetch(hStmt) != SQL_NO_DATA)
+		{
+			printf("%-10s %-10s %-15s %-10s %-25s ", resNum, user.domainNum, user.userID, user.userJoinDate, user.userEmail);
+			if (nullUser.joinDate == SQL_NULL_DATA)
+			{
+				printf("NULL ");
+			}
+			else
+			{
+				printf("%-10s ", user.userJob);
+			}
+			printf("\n");
+		}
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+void ProjectDAO::ExecuteSelectSQL()
+{
+	SQLHSTMT hStmt;
+	SQLSMALLINT colCount = -1;
+	SQLCHAR data[30][100];
+	SQLINTEGER nullData[30];
+	printf("SQL >> ");
+	getchar();
+	fgets((char*)query, 100, stdin);
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLNumResultCols(hStmt, &colCount);
+		
+		for (int i = 0; i < colCount; i++)
+		{
+			SQLBindCol(hStmt, i + 1, SQL_C_CHAR, data[i], 100, &nullData[i]);
+		}
+		SQLRETURN re = SQLFetch(hStmt);
+		while (re != SQL_NO_DATA && re != SQL_NULL_DATA)
+		{
+			for (int i = 0; i < colCount; i++)
+			{
+				if (nullData[i] == SQL_NULL_DATA)
+				{
+					printf("%-10s ", "NULL");
+				}
+				else
+				{
+					printf("%-10s ", data[i]);
+				}
+			}
+
+			printf("\n");
+			re = SQLFetch(hStmt);
+		}
+
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	}
