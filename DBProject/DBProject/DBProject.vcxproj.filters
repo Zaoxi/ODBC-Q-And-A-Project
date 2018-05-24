@@ -42,6 +42,9 @@
     <ClCompile Include="MainController.cpp">
       <Filter>소스 파일\Control</Filter>
     </ClCompile>
+    <ClCompile Include="ODBCPractice.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ProjectDAO.h">
