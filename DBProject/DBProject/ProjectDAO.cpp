@@ -272,7 +272,7 @@ void ProjectDAO::PrintAnswersInSelectedArea(char * bigClass, char * subClass)
 {
 	SQLHSTMT hStmt;
 	Response resData;
-	nullResponse nullResData;
+	NULLRESPONSE nullResData;
 
 	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 	{
@@ -397,6 +397,7 @@ void ProjectDAO::PrintQuestionUsingTitle(char * title)
 	QUESTION * tempQue;
 	list<NULLQUESTION*> * nullQue = new list<NULLQUESTION*>();
 	NULLQUESTION * nullTempQue;
+	NULLRESPONSE nullRes;
 
 	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 	{
@@ -408,7 +409,7 @@ void ProjectDAO::PrintQuestionUsingTitle(char * title)
 			tempQue = new QUESTION();
 			nullTempQue = new NULLQUESTION();
 
-			SQLBindCol(hStmt, 1, SQL_C_CHAR, &(tempQue->queNum), LENGTH_QUENUM, NULL));
+			SQLBindCol(hStmt, 1, SQL_C_CHAR, &(tempQue->queNum), LENGTH_QUENUM, NULL);
 			SQLBindCol(hStmt, 2, SQL_C_CHAR, &(tempQue->queID), LENGTH_ID, &(nullTempQue->queID));
 			SQLBindCol(hStmt, 3, SQL_C_CHAR, &(tempQue->queDomain), LENGTH_DOMAIN_NUM, NULL);
 			SQLBindCol(hStmt, 4, SQL_C_CHAR, &(tempQue->queDate), LENGTH_DATE, &(nullTempQue->queDate));
@@ -439,9 +440,180 @@ void ProjectDAO::PrintQuestionUsingTitle(char * title)
 			sprintf((char*)query, "SELECT R.RES_NUM, R.RES_ID, D.DOMAIN_NAME, R.RES_DATE, R.RES_CONTENTS FROM RESPONSE AS R, RESPOND AS QR, DOMAIN AS D WHERE QR.QUE_NUM = %s AND QR.RES_NUM = R.RES_NUM AND R.RES_DOMAIN_NUM = D.DOMAIN_NUM", (*queIter)->queID);
 			SQLExecDirect(hStmt, query, SQL_NTS);
 
-			SQLBindCol(hStmt, 1, SQL_C_CHAR, response.resNum, LENGTH_QUENUM, )
+			SQLBindCol(hStmt, 1, SQL_C_CHAR, response.resNum, LENGTH_QUENUM, NULL);
+			SQLBindCol(hStmt, 2, SQL_C_CHAR, response.resID, LENGTH_ID, &(nullRes.resID));
+			SQLBindCol(hStmt, 3, SQL_C_CHAR, response.resDomain, LENGTH_DOMAIN_NAME, NULL);
+			SQLBindCol(hStmt, 4, SQL_C_CHAR, response.resDate, LENGTH_DATE, &(nullRes.resDate));
+			SQLBindCol(hStmt, 5, SQL_C_CHAR, response.resContents, LENGTH_CONTENTS, NULL);
+
+			printf("%-5s %-20s %-20s %-15s\n", "Q.NUM", "Q.ID", "Q.DOMAIN", "Q.DATE");
+			printf("%-5s ", (*queIter)->queNum);
+			if ((*nullQueIter)->queID == SQL_NULL_DATA)
+			{
+				printf("%-20s ", "NULL");
+			}
+			else
+			{
+				printf("%-20s ", (*queIter)->queID);
+			}
+			printf("%-20s ", (*queIter)->queDomain);
+			if ((*nullQueIter)->queDate == SQL_NULL_DATA)
+			{
+				printf("%-20s ", "NULL");
+			}
+			else
+			{
+				printf("%-20s ", (*queIter)->queDate);
+			}
+			printf("\nTITLE : %s\n\n", (*queIter)->queTitle);
+			printf("%s\n\n\n", (*queIter)->queContents);
+
+			while (SQLFetch(hStmt) != SQL_NO_DATA)
+			{
+				printf("%-5s %-20s %-20s %-15s\n", "R.NUM", "R.ID", "R.DOMAIN", "R.DATE");
+
+				printf("%-5s ", response.resNum);
+
+				if (nullRes.resID == SQL_NULL_DATA)
+				{
+					printf("%-20s ", "NULL");
+				}
+				else
+				{
+					printf("%-20s ", response.resID);
+				}
+				printf("%-20s ", response.resDomain);
+
+				if (nullRes.resDate == SQL_NULL_DATA)
+				{
+					printf("%-15s\n", "NULL");
+				}
+				else
+				{
+					printf("%-15s\n", response.resDate);
+				}
+				printf("\n%s\n\n", response.resContents);
+			}
+
+			queIter++;
+			nullQueIter++;
+			SQLCloseCursor(hStmt);
+			SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 		}
+	}
+}
 
+void ProjectDAO::PrintQuestionUsingContents(char * contents)
+{
+	SQLHSTMT hStmt;
+	SQLSMALLINT colCount = -1;
+	list<QUESTION*> * question = new list<QUESTION*>();
+	RESPONSE response;
+	QUESTION * tempQue;
+	list<NULLQUESTION*> * nullQue = new list<NULLQUESTION*>();
+	NULLQUESTION * nullTempQue;
+	NULLRESPONSE nullRes;
 
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "SELECT Q.QUE_NUM, Q.QUE_ID, D.DOMAIN_NAME, Q.QUE_DATE, Q.QUE_TITLE, Q.QUE_CONTENTS FROM QUESTION AS Q WHERE Q.QUE_CONTENTS LIKE '%s%%' AND Q.QUE_DOMAIN_NUM = D.DOMAIN_NUM", contents);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+
+		while (true)
+		{
+			tempQue = new QUESTION();
+			nullTempQue = new NULLQUESTION();
+
+			SQLBindCol(hStmt, 1, SQL_C_CHAR, &(tempQue->queNum), LENGTH_QUENUM, NULL);
+			SQLBindCol(hStmt, 2, SQL_C_CHAR, &(tempQue->queID), LENGTH_ID, &(nullTempQue->queID));
+			SQLBindCol(hStmt, 3, SQL_C_CHAR, &(tempQue->queDomain), LENGTH_DOMAIN_NUM, NULL);
+			SQLBindCol(hStmt, 4, SQL_C_CHAR, &(tempQue->queDate), LENGTH_DATE, &(nullTempQue->queDate));
+			SQLBindCol(hStmt, 5, SQL_C_CHAR, &(tempQue->queTitle), LENGTH_TITLE, NULL);
+			SQLBindCol(hStmt, 6, SQL_C_CHAR, &(tempQue->queContents), LENGTH_CONTENTS, NULL);
+
+			if (SQLFetch(hStmt) == SQL_NO_DATA)
+			{
+				delete tempQue;
+				delete nullTempQue;
+				break;
+			}
+
+			question->push_back(tempQue);
+			nullQue->push_back(nullTempQue);
+		}
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+
+	list<QUESTION*>::iterator queIter = question->begin();
+	list<NULLQUESTION*>::iterator nullQueIter = nullQue->begin();
+
+	while (queIter != question->end())
+	{
+		if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+		{
+			sprintf((char*)query, "SELECT R.RES_NUM, R.RES_ID, D.DOMAIN_NAME, R.RES_DATE, R.RES_CONTENTS FROM RESPONSE AS R, RESPOND AS QR, DOMAIN AS D WHERE QR.QUE_NUM = %s AND QR.RES_NUM = R.RES_NUM AND R.RES_DOMAIN_NUM = D.DOMAIN_NUM", (*queIter)->queID);
+			SQLExecDirect(hStmt, query, SQL_NTS);
+
+			SQLBindCol(hStmt, 1, SQL_C_CHAR, response.resNum, LENGTH_QUENUM, NULL);
+			SQLBindCol(hStmt, 2, SQL_C_CHAR, response.resID, LENGTH_ID, &(nullRes.resID));
+			SQLBindCol(hStmt, 3, SQL_C_CHAR, response.resDomain, LENGTH_DOMAIN_NAME, NULL);
+			SQLBindCol(hStmt, 4, SQL_C_CHAR, response.resDate, LENGTH_DATE, &(nullRes.resDate));
+			SQLBindCol(hStmt, 5, SQL_C_CHAR, response.resContents, LENGTH_CONTENTS, NULL);
+
+			printf("%-5s %-20s %-20s %-15s\n", "Q.NUM", "Q.ID", "Q.DOMAIN", "Q.DATE");
+			printf("%-5s ", (*queIter)->queNum);
+			if ((*nullQueIter)->queID == SQL_NULL_DATA)
+			{
+				printf("%-20s ", "NULL");
+			}
+			else
+			{
+				printf("%-20s ", (*queIter)->queID);
+			}
+			printf("%-20s ", (*queIter)->queDomain);
+			if ((*nullQueIter)->queDate == SQL_NULL_DATA)
+			{
+				printf("%-20s ", "NULL");
+			}
+			else
+			{
+				printf("%-20s ", (*queIter)->queDate);
+			}
+			printf("\nTITLE : %s\n\n", (*queIter)->queTitle);
+			printf("%s\n\n\n", (*queIter)->queContents);
+
+			while (SQLFetch(hStmt) != SQL_NO_DATA)
+			{
+				printf("%-5s %-20s %-20s %-15s\n", "R.NUM", "R.ID", "R.DOMAIN", "R.DATE");
+
+				printf("%-5s ", response.resNum);
+
+				if (nullRes.resID == SQL_NULL_DATA)
+				{
+					printf("%-20s ", "NULL");
+				}
+				else
+				{
+					printf("%-20s ", response.resID);
+				}
+				printf("%-20s ", response.resDomain);
+
+				if (nullRes.resDate == SQL_NULL_DATA)
+				{
+					printf("%-15s\n", "NULL");
+				}
+				else
+				{
+					printf("%-15s\n", response.resDate);
+				}
+				printf("\n%s\n\n", response.resContents);
+			}
+
+			queIter++;
+			nullQueIter++;
+			SQLCloseCursor(hStmt);
+			SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+		}
 	}
 }

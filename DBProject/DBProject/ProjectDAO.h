@@ -104,7 +104,7 @@ typedef struct _nullResponse
 {
 	SQLINTEGER resID;
 	SQLINTEGER resDate;
-} nullResponse;
+} NULLRESPONSE;
 
 #pragma endregion
 
@@ -137,8 +137,8 @@ public:
 	void PrintResponseUsersInSelectedArea(char * bigClass, char * subClass);
 	// SQL을 입력받아서 출력
 	void ExecuteSelectSQL();
-
+	// TITLE을 검색하여 원하는 질문과 답변 출력
 	void PrintQuestionUsingTitle(char * title);
-
+	// CONTENTS를 검색하여 원하는 질문과 답변 출력
 	void PrintQuestionUsingContents(char * contents);
 };

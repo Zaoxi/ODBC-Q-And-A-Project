@@ -193,6 +193,7 @@ void ::MainController::selectResUsersInArea()
 void MainController::selectQuestionControl()
 {
 	char select;
+	char searchData[100];
 
 	while (true)
 	{
@@ -208,18 +209,20 @@ void MainController::selectQuestionControl()
 		switch (select)
 		{
 		case '1':
-			
+			cout << "TITLE >> ";
+			cin >> searchData;
+			dao->PrintQuestionUsingTitle(searchData);
 			break;
 		case '2':
-
+			cout << "CONTENTS >> ";
+			cin >> searchData;
+			dao->PrintQuestionUsingContents(searchData);
 			break;
 		case '0':
-
 			return;
 		default:
 			break;
 		}
-
 	}
 }
 
