@@ -15,38 +15,153 @@ void ShowMenu::ShowMainMenu()
 	cout << " - 본 데이터는 지식인 데이터를 기반으로 합니다." << endl;
 	cout << " - 메뉴를 선택해주세요." << endl;
 	showLine();
-	cout << "1. Area 테이블을 이용하여 여러 Join 작업 실행" << endl;
-	cout << "2. Schema 출력" << endl;
-	cout << "3. SQL문 입력" << endl;
-	cout << "0. 프로그램 종료" << endl;
+	cout << "1. SQL query" << endl;
+	cout << "2. SELECT" << endl;
+	cout << "3. INSERT" << endl;
+	cout << "4. DELETE" << endl;
+	cout << "5. UPDATE" << endl;
+	cout << "6. PRINT" << endl;
+	cout << "0. EXIT" << endl;
 	showLine();
 	cout << " >> ";
 }
 
-void ShowMenu::ShowAreaMenu()
+// 2
+void ShowMenu::ShowSelectMenu()
 {
 	showLine();
-	cout << "<Area> 테이블 참조" << endl;
-	cout << " - 원하시는 작업을 선택하세요." << endl;
-	showLine();
-	cout << "1. 모든 Area 데이터 출력" << endl;
-	cout << "2. 대분류, 소분류 선택 후, 해당 데이터 출력(2Table Join, 3Table Join, 4Table Join 작업이 있습니다.)" << endl;
+	cout << "<SELECT 메뉴>" << endl;
+	cout << "1. AREA 테이블 참조" << endl;
+	cout << "2. QUESTION 테이블 참조" << endl;
+	cout << "3. RESPONSE 테이블 참조" << endl;
+	cout << "4. DOMAIN 테이블 참조" << endl;
+	cout << "5. USERS 테이블 참조" << endl;
 	cout << "0. 뒤로 가기" << endl;
 	showLine();
 	cout << " >> ";
 }
 
-void ShowMenu::ShowSelectedAreaMenu()
+
+// 3
+void ShowMenu::ShowInsertMenu()
 {
 	showLine();
-	cout << "1. 이 분야의 모든 질문을 출력(2Table Join)" << endl;
-	cout << "2. 이 분야의 질문을 작성한 모든 유저들의 정보를 출력(3Table Join)" << endl;
-	cout << "3. 이 분야의 질문에 대한 모든 답변들을 출력(3Table Join)" << endl;
-	cout << "4. 이 분야의 질문에 대한 답변을 작성한 모든 유저들의 정보를 출력(4Table Join)" << endl;
+	cout << "<INSERT 메뉴>" << endl;
+	cout << "1. AREA 테이블에 삽입" << endl;
+	cout << "2. QUESTION 테이블에 삽입" << endl;
+	cout << "3. RESPONSE 테이블에 삽입" << endl;
+	cout << "4. DOMAIN 테이블에 삽입" << endl;
+	cout << "5. USERS 테이블에 삽입" << endl;
+	showLine();
+	cout << " >> ";
+}
+
+// 4
+void ShowMenu::ShowDeleteMenu()
+{
+	showLine();
+	cout << "<DELETE 메뉴>" << endl;
+	cout << "1. AREA 테이블의 튜플 삭제" << endl;
+	cout << "2. QUESTION 테이블의 튜플 삭제" << endl;
+	cout << "3. RESPONSE 테이블의 튜플 삭제" << endl;
+	cout << "4. DOMAIN 테이블의 튜플 삭제" << endl;
+	cout << "5. USERS 테이블의 튜플 삭제" << endl;
+	showLine();
+	cout << " >> ";
+}
+
+// 5
+void ShowMenu::ShowUpdateMenu()
+{
+	showLine();
+	cout << "<UPDATE 메뉴>" << endl;
+	cout << "1. AREA 테이블의 튜플 수정" << endl;
+	cout << "2. QUESTION 테이블의 튜플 수정" << endl;
+	cout << "3. RESPONSE 테이블의 튜플 수정" << endl;
+	cout << "4. DOMAIN 테이블의 튜플 수정" << endl;
+	cout << "5. USERS 테이블의 튜플 수정" << endl;
+	showLine();
+	cout << " >> ";
+}
+
+// 6
+void ShowMenu::ShowPrintMenu()
+{
+	showLine();
+	cout << "<PRINT 메뉴>" << endl;
+	cout << "1. AREA 테이블 출력" << endl;
+	cout << "2. QUESTION 테이블 출력" << endl;
+	cout << "3. RESPONSE 테이블 출력" << endl;
+	cout << "4. DOMAIN 테이블 출력" << endl;
+	cout << "5. USERS 테이블 출력" << endl;
+	showLine();
+	cout << " >> ";
+}
+
+#pragma region SELECT TABLE에 관한 메뉴
+// 2-1
+void ShowMenu::ShowSelectAreaMenu()
+{
+	showLine();
+	cout << "<SELECT AREA 메뉴>" << endl;
+	cout << "1. AREA 테이블과 관련된 QUESTION 출력" << endl;
+	cout << "2. AREA 테이블과 관련된 QUESTION의 유저정보 출력" << endl;
+	cout << "3. AREA 테이블과 관련된 RESPONSE 출력" << endl;
+	cout << "4. AREA 테이블과 관련된 RESPONSE의 유저정보 출력" << endl;
 	cout << "0. 뒤로 가기" << endl;
 	showLine();
 	cout << " >> ";
 }
+
+// 2-2
+void ShowMenu::ShowSelectQuestionMenu()
+{
+	showLine();
+	cout << "<SELECT QUESTION 메뉴>" << endl;
+	cout << "1. QUESTION 테이블 제목 검색" << endl;
+	cout << "2. QUESTION 테이블 내용 검색" << endl;
+	cout << "0. 뒤로 가기" << endl;
+	showLine();
+	cout << " >> ";
+}
+
+// 2-3
+void ShowMenu::ShowSelectResponseMenu()
+{
+	showLine();
+	cout << "<SELECT RESPONSE 메뉴>" << endl;
+	cout << "1. RESPONSE 테이블 내용 검색" << endl;
+	cout << "0. 뒤로 가기" << endl;
+	showLine();
+	cout << " >> ";
+}
+
+// 2-4
+void ShowMenu::ShowSelectDomainMenu()
+{
+	showLine();
+	cout << "<SELECT DOMAIN 메뉴>" << endl;
+	cout << "1. DOMAIN 이름 검색" << endl;
+	cout << "2. DOMAIN 회사 검색" << endl;
+	cout << "3. DOMAIN에서 검색된 사이트에 등록된 유저정보" << endl;
+	cout << "0. 뒤로 가기" << endl;
+	showLine();
+	cout << " >> ";
+}
+
+// 2-5
+void ShowMenu::ShowSelectUsersMenu()
+{
+	showLine();
+	cout << "<SELECT USERS 메뉴>" << endl;
+	cout << "1. USERS 아이디 검색" << endl;
+	cout << "2. USERS 가입일 검색" << endl;
+	cout << "3. USERS 직업 검색" << endl;
+	cout << "0. 뒤로 가기" << endl;
+	showLine();
+	cout << " >> ";
+}
+#pragma endregion
 
 void ShowMenu::ShowSchema()
 {

@@ -17,6 +17,8 @@
 
 #define LENGTH_EMAIL 30
 #define LENGTH_JOB 40
+
+#define LENGTH_DOMAIN_NAME 40
 #pragma endregion
 
 #pragma region DAO 데이터 처리에 필요한 각종 구조체 정의
@@ -46,7 +48,7 @@ typedef struct _nullAreaQuestionJoin
 	SQLINTEGER nullQueDate;
 	SQLINTEGER nullQueTitle;
 	SQLINTEGER nullQueContents;
-} nullAreaQuetionJoin;
+} nullAreaQuestionJoin;
 
 typedef struct _users
 {
@@ -64,6 +66,31 @@ typedef struct _nullusers
 	SQLINTEGER userJob;
 } nullUserData;
 
+typedef struct _question
+{
+	SQLCHAR queNum[LENGTH_QUENUM];
+	SQLCHAR queID[LENGTH_ID];
+	SQLCHAR queDomain[LENGTH_DOMAIN_NAME];
+	SQLCHAR queDate[LENGTH_DATE];
+	SQLCHAR queTitle[LENGTH_TITLE];
+	SQLCHAR queContents[LENGTH_CONTENTS];
+} QUESTION;
+
+typedef struct _nullQuestion
+{
+	SQLINTEGER queID;
+	SQLINTEGER queDate;
+} NULLQUESTION;
+
+typedef struct _response
+{
+	SQLCHAR resNum[LENGTH_QUENUM];
+	SQLCHAR resID[LENGTH_ID];
+	SQLCHAR resDomain[LENGTH_DOMAIN_NAME];
+	SQLCHAR resDate[LENGTH_DATE];
+	SQLCHAR resContents[LENGTH_CONTENTS];
+} RESPONSE;
+
 typedef struct _Response
 {
 	SQLCHAR queNum[LENGTH_QUENUM];
@@ -75,9 +102,10 @@ typedef struct _Response
 
 typedef struct _nullResponse
 {
-	SQLINTEGER ID;
-	SQLINTEGER data;
+	SQLINTEGER resID;
+	SQLINTEGER resDate;
 } nullResponse;
+
 #pragma endregion
 
 class ProjectDAO
@@ -103,10 +131,14 @@ public:
 	void PrintQuestionsInSeletedArea(char * bigClass, char * subClass);
 	// 선택된 분야의 유저 정보를 출력, 3 Table Join
 	void PrintUsersInSelectedArea(char * bigClass, char * subClass);
-
+	// 선택된 분야의 답변 정보 출력 , 3Table Join
 	void PrintAnswersInSelectedArea(char * bigClass, char * subClass);
-
+	// 선택된 분야에 답변한 유저 정보 출력, 4 Table Join
 	void PrintResponseUsersInSelectedArea(char * bigClass, char * subClass);
-
+	// SQL을 입력받아서 출력
 	void ExecuteSelectSQL();
+
+	void PrintQuestionUsingTitle(char * title);
+
+	void PrintQuestionUsingContents(char * contents);
 };

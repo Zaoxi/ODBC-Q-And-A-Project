@@ -17,6 +17,28 @@ private :
 	// 선택된 분야와 관련된 정보 모두 출력
 	void allDataInSeletedArea(char select);
 
+
+
+	void selectMenuControl();
+	void insertMenuControl();
+	void deleteMenuControl();
+	void updateMenuControl();
+	void printMenuControl();
+
+	void selectAreaControl();
+	void selectQuestionControl();
+	void selectResponseControl();
+	void selectUsersControl();
+	void selectDomainControl();
+
+	void selectQuestionInArea();
+	void selectQueUsersInArea();
+	void selectResponseInArea();
+	void selectResUsersInArea();
+
+
+
+
 public :
 	// 멤버 변수를 초기화 하면서 메인메뉴선택 출력
 	MainController();

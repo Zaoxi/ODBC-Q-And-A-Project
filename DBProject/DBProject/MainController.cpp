@@ -24,7 +24,7 @@ MainController::MainController()
 		menu->ShowMainMenu();
 		cin >> select;
 
-		if (select < '0' || select > '3')
+		if (select < '0' || select > '6')
 		{
 			showOutOfIndex();
 		}
@@ -33,13 +33,22 @@ MainController::MainController()
 			switch (select)
 			{
 			case '1':
-				areaControl();
+				dao->ExecuteSelectSQL();
 				break;
 			case '2':
-				menu->ShowSchema();
+				selectMenuControl();
 				break;
 			case '3':
-				dao->ExecuteSelectSQL();
+				insertMenuControl();
+				break;
+			case '4':
+				deleteMenuControl();
+				break;
+			case '5':
+				updateMenuControl();
+				break;
+			case '6':
+				printMenuControl();
 				break;
 			case '0':
 				delete this;
@@ -51,88 +60,429 @@ MainController::MainController()
 	}
 }
 
-// Area 메뉴 출력
-void MainController::areaControl()
+#pragma region SELECT 메뉴에 대한 컨트롤 메소드
+
+void MainController::selectMenuControl()
 {
 	char select;
 
 	while (true)
 	{
-		menu->ShowAreaMenu();
+		menu->ShowSelectMenu();
 		cin >> select;
 
-		if (select < '0' || select > '2')
+		if (select < '0' || select > '5')
 		{
 			showOutOfIndex();
+			continue;
 		}
-		else
+
+		switch (select)
 		{
-			switch (select)
-			{
-			case '1':
-				dao->PrintAllArea();
-				return;
-			case '2':
-				selectedAreaControl();
-				return;
-			case '0':
-				return;
-			default :
-				break;
-			}
+		case '1':
+			selectAreaControl();
+			return;
+		case '2':
+			selectQuestionControl();
+			return;
+		case '3':
+			selectResponseControl();
+			return;
+		case '4':
+			selectDomainControl();
+			return;
+		case '5':
+			selectUsersControl();
+			return;
+		case '0':
+			return;
+		default:
+			return;
 		}
 	}
 }
 
-// 선택된 Area 메뉴 출력
-void MainController::selectedAreaControl()
+#pragma region SELECT AREA에 대한 메소드
+
+void MainController::selectAreaControl()
 {
 	char select;
 
 	while (true)
 	{
-		menu->ShowSelectedAreaMenu();
+		menu->ShowSelectAreaMenu();
 		cin >> select;
 
 		if (select < '0' || select > '4')
 		{
 			showOutOfIndex();
+			continue;
 		}
-		if (select == '0')
+
+		switch (select)
 		{
+		case '1':
+			selectQuestionInArea();
+			break;
+		case '2':
+			selectQueUsersInArea();
+			break;
+		case '3':
+			selectResponseInArea();
+			break;
+		case '4':
+			selectResUsersInArea();
+			break;
+		case '0':
 			return;
+		default:
+			break;
 		}
-		else
-		{
-			allDataInSeletedArea(select);
-		}
+
 	}
 }
 
-void MainController::allDataInSeletedArea(char select)
+void MainController::selectQuestionInArea()
 {
 	char bigClass[20], smallClass[20];
 	cout << "대분류 >> ";
 	cin >> bigClass;
 	cout << "소분류 >> ";
 	cin >> smallClass;
-	
-	switch (select)
+
+	dao->PrintQuestionsInSeletedArea(bigClass, smallClass);
+}
+
+void MainController::selectQueUsersInArea()
+{
+	char bigClass[20], smallClass[20];
+	cout << "대분류 >> ";
+	cin >> bigClass;
+	cout << "소분류 >> ";
+	cin >> smallClass;
+
+	dao->PrintUsersInSelectedArea(bigClass, smallClass);
+}
+
+void MainController::selectResponseInArea()
+{
+	char bigClass[20], smallClass[20];
+	cout << "대분류 >> ";
+	cin >> bigClass;
+	cout << "소분류 >> ";
+	cin >> smallClass;
+
+	dao->PrintAnswersInSelectedArea(bigClass, smallClass);
+}
+
+void ::MainController::selectResUsersInArea()
+{
+	char bigClass[20], smallClass[20];
+	cout << "대분류 >> ";
+	cin >> bigClass;
+	cout << "소분류 >> ";
+	cin >> smallClass;
+
+	dao->PrintResponseUsersInSelectedArea(bigClass, smallClass);
+}
+
+#pragma endregion
+
+#pragma region SELECT QUESTION에 대한 메소드
+
+void MainController::selectQuestionControl()
+{
+	char select;
+
+	while (true)
 	{
-	case '1':
-		dao->PrintQuestionsInSeletedArea(bigClass, smallClass);
-		return;
-	case '2':
-		dao->PrintUsersInSelectedArea(bigClass, smallClass);
-		return;
-	case '3':
-		dao->PrintAnswersInSelectedArea(bigClass, smallClass);
-		return;
-	case '4':
-		dao->PrintResponseUsersInSelectedArea(bigClass, smallClass);
-		return;
+		menu->ShowSelectQuestionMenu();
+		cin >> select;
+
+		if (select < '0' || select > '2')
+		{
+			showOutOfIndex();
+			continue;
+		}
+
+		switch (select)
+		{
+		case '1':
+			
+			break;
+		case '2':
+
+			break;
+		case '0':
+
+			return;
+		default:
+			break;
+		}
+
 	}
 }
+
+#pragma endregion
+
+#pragma region SELECT RESPONSE에 대한 메소드
+
+void MainController::selectResponseControl()
+{
+	char select;
+
+	while (true)
+	{
+		menu->ShowSelectResponseMenu();
+		cin >> select;
+
+		if (select < '0' || select > '1')
+		{
+			showOutOfIndex();
+			continue;
+		}
+
+		switch (select)
+		{
+		case '1':
+			break;
+		case '0':
+			return;
+		default:
+			break;
+		}
+	}
+}
+
+#pragma endregion
+
+#pragma region SELECT USERS에 대한 메소드
+
+void MainController::selectUsersControl()
+{
+	char select;
+
+	while (true)
+	{
+		menu->ShowSelectUsersMenu();
+		cin >> select;
+
+		if (select < '0' || select > '3')
+		{
+			showOutOfIndex();
+			continue;
+		}
+
+		switch (select)
+		{
+		case '1':
+			break;
+		case '2':
+			break;
+		case '3':
+			break;
+		case '0':
+			return;
+		default:
+			break;
+		}
+	}
+}
+
+#pragma endregion
+
+#pragma region SELECT DOMAIN에 대한 메소드
+
+void MainController::selectDomainControl()
+{
+	char select;
+	
+	while (true)
+	{
+		menu->ShowSelectDomainMenu();
+		cin >> select;
+
+		if (select < '0' || select > '3')
+		{
+			showOutOfIndex();
+			continue;
+		}
+
+		switch (select)
+		{
+		case '1':
+			break;
+		case '2':
+			break;
+		case '3':
+			break;
+		case '0':
+			return;
+		default:
+			break;
+		}
+	}
+}
+
+#pragma endregion
+
+#pragma endregion
+
+#pragma region INSERT 메뉴에 대한 컨트롤 메소드
+
+void MainController::insertMenuControl()
+{
+	char select;
+
+	while (true)
+	{
+		menu->ShowInsertMenu();
+		cin >> select;
+
+		if (select < '0' || select > '5')
+		{
+			showOutOfIndex();
+			continue;
+		}
+
+		switch (select)
+		{
+		case '1':
+			return;
+		case '2':
+			return;
+		case '3':
+			return;
+		case '4':
+			return;
+		case '5':
+			return;
+		case '0':
+			return;
+		default:
+			return;
+		}
+	}
+}
+
+#pragma endregion
+
+#pragma region DELETE 메뉴에 대한 컨트롤 메소드
+
+void MainController::deleteMenuControl()
+{
+	char select;
+
+	while (true)
+	{
+		menu->ShowInsertMenu();
+		cin >> select;
+
+		if (select < '0' || select > '5')
+		{
+			showOutOfIndex();
+			continue;
+		}
+
+		switch (select)
+		{
+		case '1':
+			return;
+		case '2':
+			return;
+		case '3':
+			return;
+		case '4':
+			return;
+		case '5':
+			return;
+		case '0':
+			return;
+		default:
+			return;
+		}
+	}
+}
+
+#pragma endregion
+
+#pragma region UPDATE 메뉴에 대한 컨트롤 메소드
+
+void MainController::updateMenuControl()
+{
+	char select;
+
+	while (true)
+	{
+		menu->ShowUpdateMenu();
+		cin >> select;
+
+		if (select < '0' || select > '5')
+		{
+			showOutOfIndex();
+			continue;
+		}
+
+		switch (select)
+		{
+		case '1':
+			return;
+		case '2':
+			return;
+		case '3':
+			return;
+		case '4':
+			return;
+		case '5':
+			return;
+		case '0':
+			return;
+		default:
+			return;
+		}
+	}
+}
+
+#pragma endregion
+
+#pragma region PRINT 메뉴에 대한 컨트롤 메소드
+
+void MainController::printMenuControl()
+{
+	char select;
+
+	while (true)
+	{
+		menu->ShowPrintMenu();
+		cin >> select;
+
+		if (select < '0' || select > '5')
+		{
+			showOutOfIndex();
+			continue;
+		}
+
+		switch (select)
+		{
+		case '1':
+			return;
+		case '2':
+			return;
+		case '3':
+			return;
+		case '4':
+			return;
+		case '5':
+			return;
+		case '0':
+			return;
+		default:
+			return;
+		}
+	}
+}
+
+#pragma endregion
 
 MainController::~MainController()
 {

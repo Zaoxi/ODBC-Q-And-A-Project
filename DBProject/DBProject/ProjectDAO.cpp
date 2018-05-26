@@ -1,10 +1,12 @@
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 #include <list>
 #include <cstring>
 #include "ProjectDAO.h"
 
 using namespace std;
+
+#pragma region DBConnect, 생성자 관련 메소드
 
 bool ProjectDAO::DBConnect()
 {
@@ -117,10 +119,14 @@ ProjectDAO::~ProjectDAO()
 	}
 }
 
+#pragma endregion
+
 bool ProjectDAO::GetbIsConnected()
 {
 	return bisConnected;
 }
+
+#pragma region AREA 테이블 관련 작업
 
 void ProjectDAO::PrintAllArea()
 {
@@ -190,7 +196,7 @@ void ProjectDAO::PrintQuestionsInSeletedArea(char * bigClass, char * subClass)
 	SQLHSTMT hStmt;
 
 	AreaQuestionJoin data;
-	nullAreaQuetionJoin nullData;
+	nullAreaQuestionJoin nullData;
 
 	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 	{
@@ -275,8 +281,8 @@ void ProjectDAO::PrintAnswersInSelectedArea(char * bigClass, char * subClass)
 
 		SQLBindCol(hStmt, 1, SQL_C_CHAR, &(resData.queNum), LENGTH_QUENUM, NULL);
 		SQLBindCol(hStmt, 2, SQL_C_CHAR, &(resData.domainNum), LENGTH_DOMAIN_NUM, NULL);
-		SQLBindCol(hStmt, 3, SQL_C_CHAR, &(resData.ID), LENGTH_ID, &(nullResData.ID));
-		SQLBindCol(hStmt, 4, SQL_C_CHAR, &(resData.date), LENGTH_DATE, &(nullResData.data));
+		SQLBindCol(hStmt, 3, SQL_C_CHAR, &(resData.ID), LENGTH_ID, &(nullResData.resID));
+		SQLBindCol(hStmt, 4, SQL_C_CHAR, &(resData.date), LENGTH_DATE, &(nullResData.resDate));
 		SQLBindCol(hStmt, 5, SQL_C_CHAR, &(resData.contents), LENGTH_CONTENTS, NULL);
 
 
@@ -284,7 +290,7 @@ void ProjectDAO::PrintAnswersInSelectedArea(char * bigClass, char * subClass)
 		{
 			printf("%-10s %-10s %-15s %-10s\n", "질문번호", "도메인번호", "ID", "작성일");
 			printf("%-10s %-10s ", resData.queNum, resData.domainNum);
-			if (nullResData.ID == SQL_NULL_DATA)
+			if (nullResData.resID == SQL_NULL_DATA)
 			{
 				printf("NULL ");
 			}
@@ -337,6 +343,8 @@ void ProjectDAO::PrintResponseUsersInSelectedArea(char * bigClass, char * subCla
 	}
 }
 
+#pragma endregion
+
 void ProjectDAO::ExecuteSelectSQL()
 {
 	SQLHSTMT hStmt;
@@ -351,7 +359,7 @@ void ProjectDAO::ExecuteSelectSQL()
 	{
 		SQLExecDirect(hStmt, query, SQL_NTS);
 		SQLNumResultCols(hStmt, &colCount);
-		
+
 		for (int i = 0; i < colCount; i++)
 		{
 			SQLBindCol(hStmt, i + 1, SQL_C_CHAR, data[i], 100, &nullData[i]);
@@ -377,5 +385,63 @@ void ProjectDAO::ExecuteSelectSQL()
 
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+void ProjectDAO::PrintQuestionUsingTitle(char * title)
+{
+	SQLHSTMT hStmt;
+	SQLSMALLINT colCount = -1;
+	list<QUESTION*> * question = new list<QUESTION*>();
+	RESPONSE response;
+	QUESTION * tempQue;
+	list<NULLQUESTION*> * nullQue = new list<NULLQUESTION*>();
+	NULLQUESTION * nullTempQue;
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "SELECT Q.QUE_NUM, Q.QUE_ID, D.DOMAIN_NAME, Q.QUE_DATE, Q.QUE_TITLE, Q.QUE_CONTENTS FROM QUESTION AS Q WHERE Q.QUE_TITLE LIKE '%s%%' AND Q.QUE_DOMAIN_NUM = D.DOMAIN_NUM", title);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+
+		while (true)
+		{
+			tempQue = new QUESTION();
+			nullTempQue = new NULLQUESTION();
+
+			SQLBindCol(hStmt, 1, SQL_C_CHAR, &(tempQue->queNum), LENGTH_QUENUM, NULL));
+			SQLBindCol(hStmt, 2, SQL_C_CHAR, &(tempQue->queID), LENGTH_ID, &(nullTempQue->queID));
+			SQLBindCol(hStmt, 3, SQL_C_CHAR, &(tempQue->queDomain), LENGTH_DOMAIN_NUM, NULL);
+			SQLBindCol(hStmt, 4, SQL_C_CHAR, &(tempQue->queDate), LENGTH_DATE, &(nullTempQue->queDate));
+			SQLBindCol(hStmt, 5, SQL_C_CHAR, &(tempQue->queTitle), LENGTH_TITLE, NULL);
+			SQLBindCol(hStmt, 6, SQL_C_CHAR, &(tempQue->queContents), LENGTH_CONTENTS, NULL);
+
+			if (SQLFetch(hStmt) == SQL_NO_DATA)
+			{
+				delete tempQue;
+				delete nullTempQue;
+				break;
+			}
+
+			question->push_back(tempQue);
+			nullQue->push_back(nullTempQue);
+		}
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+
+	list<QUESTION*>::iterator queIter = question->begin();
+	list<NULLQUESTION*>::iterator nullQueIter = nullQue->begin();
+
+	while (queIter != question->end())
+	{
+		if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+		{
+			sprintf((char*)query, "SELECT R.RES_NUM, R.RES_ID, D.DOMAIN_NAME, R.RES_DATE, R.RES_CONTENTS FROM RESPONSE AS R, RESPOND AS QR, DOMAIN AS D WHERE QR.QUE_NUM = %s AND QR.RES_NUM = R.RES_NUM AND R.RES_DOMAIN_NUM = D.DOMAIN_NUM", (*queIter)->queID);
+			SQLExecDirect(hStmt, query, SQL_NTS);
+
+			SQLBindCol(hStmt, 1, SQL_C_CHAR, response.resNum, LENGTH_QUENUM, )
+		}
+
+
 	}
 }
