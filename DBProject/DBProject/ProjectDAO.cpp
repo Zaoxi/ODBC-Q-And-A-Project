@@ -235,24 +235,24 @@ void ProjectDAO::PrintQuestionsInSeletedArea(char * bigClass, char * subClass)
 void ProjectDAO::PrintUsersInSelectedArea(char * bigClass, char * subClass)
 {
 	SQLHSTMT hStmt;
-	UserData userData;
-	nullUserData nullUserData;
+	USERS userData;
+	NULLUSERS nullUserData;
 
 	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 	{
-		sprintf((char *)query, "SELECT U.USER_DOMAIN_NUM, U.USER_ID, U.USER_JOIN_DATE, U.USER_EMAIL, U.USER_JOB FROM USERS AS U, AREA AS A, QUESTION AS Q WHERE A.AREA_BIG_CLASS = '%s' AND A.AREA_SUB_CLASS = '%s' AND Q.QUE_BIG_CLASS = A.AREA_BIG_CLASS AND Q.QUE_SUB_CLASS = A.AREA_SUB_CLASS AND U.USER_DOMAIN_NUM = Q.QUE_DOMAIN_NUM AND U.USER_ID = Q.QUE_ID", bigClass, subClass);
+		sprintf((char *)query, "SELECT D.DOMAIN_NAME, U.USER_ID, U.USER_JOIN_DATE, U.USER_EMAIL, U.USER_JOB FROM USERS AS U, AREA AS A, QUESTION AS Q, DOMAIN AS D WHERE A.AREA_BIG_CLASS = '%s' AND A.AREA_SUB_CLASS = '%s' AND Q.QUE_BIG_CLASS = A.AREA_BIG_CLASS AND Q.QUE_SUB_CLASS = A.AREA_SUB_CLASS AND U.USER_DOMAIN_NUM = Q.QUE_DOMAIN_NUM AND U.USER_ID = Q.QUE_ID AND U.USER_DOMAIN_NUM = D.DOMAIN_NUM", bigClass, subClass);
 		SQLExecDirect(hStmt, query, SQL_NTS);
 
-		SQLBindCol(hStmt, 1, SQL_C_CHAR, &(userData.domainNum), LENGTH_DOMAIN_NUM, NULL);
+		SQLBindCol(hStmt, 1, SQL_C_CHAR, &(userData.domainName), LENGTH_DOMAIN_NAME, NULL);
 		SQLBindCol(hStmt, 2, SQL_C_CHAR, &(userData.userID), LENGTH_ID, NULL);
 		SQLBindCol(hStmt, 3, SQL_C_CHAR, &(userData.userJoinDate), LENGTH_DATE, &(nullUserData.joinDate));
 		SQLBindCol(hStmt, 4, SQL_C_CHAR, &(userData.userEmail), LENGTH_EMAIL, &(nullUserData.userEmail));
 		SQLBindCol(hStmt, 5, SQL_C_CHAR, &(userData.userJob), LENGTH_JOB, &(nullUserData.userJob));
 
-		printf("%-10s %-15s %-10s %-25s %-10s\n", "도메인번호", "아이디", "가입일", "이메일", "직업");
+		printf("%-20s %-15s %-10s %-25s %-10s\n", "도메인이름", "아이디", "가입일", "이메일", "직업");
 		while (SQLFetch(hStmt) != SQL_NO_DATA)
 		{
-			printf("%-10s %-15s %-10s %-25s ", userData.domainNum, userData.userID, userData.userJoinDate, userData.userEmail);
+			printf("%-20s %-15s %-10s %-25s ", userData.domainName, userData.userID, userData.userJoinDate, userData.userEmail);
 			if (nullUserData.userJob == SQL_NULL_DATA)
 			{
 				printf("NULL ");
@@ -308,26 +308,26 @@ void ProjectDAO::PrintAnswersInSelectedArea(char * bigClass, char * subClass)
 void ProjectDAO::PrintResponseUsersInSelectedArea(char * bigClass, char * subClass)
 {
 	SQLHSTMT hStmt;
-	UserData user;
-	nullUserData nullUser;
+	USERS user;
+	NULLUSERS nullUser;
 	char resNum[LENGTH_QUENUM];
 
 	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 	{
-		sprintf((char *)query, "SELECT R.RES_NUM, U.USER_DOMAIN_NUM, U.USER_ID, U.USER_JOIN_DATE, U.USER_EMAIL, U.USER_JOB FROM AREA AS A, QUESTION AS Q, RESPOND AS QR, RESPONSE AS R, USERS AS U WHERE A.AREA_BIG_CLASS = '%s' AND A.AREA_SUB_CLASS = '%s' AND Q.QUE_BIG_CLASS = A.AREA_BIG_CLASS AND Q.QUE_SUB_CLASS = A.AREA_SUB_CLASS AND QR.QUE_NUM = Q.QUE_NUM AND R.RES_NUM = QR.RES_NUM AND U.USER_DOMAIN_NUM = R.RES_DOMAIN_NUM AND U.USER_ID = R.RES_ID", bigClass, subClass);
+		sprintf((char *)query, "SELECT R.RES_NUM, D.DOMAIN_NAME, U.USER_ID, U.USER_JOIN_DATE, U.USER_EMAIL, U.USER_JOB FROM AREA AS A, QUESTION AS Q, RESPOND AS QR, RESPONSE AS R, USERS AS U WHERE A.AREA_BIG_CLASS = '%s' AND A.AREA_SUB_CLASS = '%s' AND Q.QUE_BIG_CLASS = A.AREA_BIG_CLASS AND Q.QUE_SUB_CLASS = A.AREA_SUB_CLASS AND QR.QUE_NUM = Q.QUE_NUM AND R.RES_NUM = QR.RES_NUM AND U.USER_DOMAIN_NUM = R.RES_DOMAIN_NUM AND U.USER_ID = R.RES_ID AND U.USER_DOMAIN_NUM = D.DOMAIN_NUM", bigClass, subClass);
 		SQLExecDirect(hStmt, query, SQL_NTS);
 
 		SQLBindCol(hStmt, 1, SQL_C_CHAR, &resNum, LENGTH_DOMAIN_NUM, NULL);
-		SQLBindCol(hStmt, 2, SQL_C_CHAR, &(user.domainNum), LENGTH_DOMAIN_NUM, NULL);
+		SQLBindCol(hStmt, 2, SQL_C_CHAR, &(user.domainName), LENGTH_DOMAIN_NAME, NULL);
 		SQLBindCol(hStmt, 3, SQL_C_CHAR, &(user.userID), LENGTH_ID, NULL);
 		SQLBindCol(hStmt, 4, SQL_C_CHAR, &(user.userJoinDate), LENGTH_DATE, &(nullUser.joinDate));
 		SQLBindCol(hStmt, 5, SQL_C_CHAR, &(user.userEmail), LENGTH_EMAIL, &(nullUser.userEmail));
 		SQLBindCol(hStmt, 6, SQL_C_CHAR, &(user.userJob), LENGTH_JOB, &(nullUser.userJob));
 
-		printf("%-10s %-10s %-15s %-10s %-25s %-10s\n", "답변번호", "도메인번호", "아이디", "가입일", "이메일", "직업");
+		printf("%-10s %-10s %-15s %-10s %-25s %-10s\n", "답변번호", "도메인이름", "아이디", "가입일", "이메일", "직업");
 		while (SQLFetch(hStmt) != SQL_NO_DATA)
 		{
-			printf("%-10s %-10s %-15s %-10s %-25s ", resNum, user.domainNum, user.userID, user.userJoinDate, user.userEmail);
+			printf("%-10s %-10s %-15s %-10s %-25s ", resNum, user.domainName, user.userID, user.userJoinDate, user.userEmail);
 			if (nullUser.joinDate == SQL_NULL_DATA)
 			{
 				printf("NULL ");
@@ -388,6 +388,8 @@ void ProjectDAO::ExecuteSelectSQL()
 	}
 }
 
+#pragma region QUESTION 테이블 관련 작업
+
 void ProjectDAO::PrintQuestionUsingTitle(char * title)
 {
 	SQLHSTMT hStmt;
@@ -407,7 +409,7 @@ void ProjectDAO::PrintQuestionUsingTitle(char * title)
 		{
 			tempQue = new QUESTION();
 			nullTempQue = new NULLQUESTION();
-			
+
 			SQLBindCol(hStmt, 1, SQL_C_CHAR, (tempQue->queNum), LENGTH_QUENUM, NULL);
 			SQLBindCol(hStmt, 2, SQL_C_CHAR, (tempQue->queID), LENGTH_ID, &(nullTempQue->queID));
 			SQLBindCol(hStmt, 3, SQL_C_CHAR, (tempQue->queDomain), LENGTH_DOMAIN_NUM, NULL);
@@ -467,7 +469,7 @@ void ProjectDAO::PrintQuestionUsingTitle(char * title)
 			printf("\nTITLE : %s\n\n", (*queIter)->queTitle);
 			printf("%s\n\n\n", (*queIter)->queContents);
 
-			
+
 			while (SQLFetch(hStmt) != SQL_NO_DATA)
 			{
 				printf("<답변>\n\n");
@@ -502,6 +504,21 @@ void ProjectDAO::PrintQuestionUsingTitle(char * title)
 			SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 		}
 	}
+
+	queIter = question->begin();
+	nullQueIter = nullQue->begin();
+
+	while (queIter != question->end())
+	{
+		delete (*queIter);
+		delete (*nullQueIter);
+
+		queIter++;
+		nullQueIter++;
+	}
+
+	delete question;
+	delete nullQue;
 }
 
 void ProjectDAO::PrintQuestionUsingContents(char * contents)
@@ -617,4 +634,380 @@ void ProjectDAO::PrintQuestionUsingContents(char * contents)
 			SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 		}
 	}
+
+	queIter = question->begin();
+	nullQueIter = nullQue->begin();
+
+	while (queIter != question->end())
+	{
+		delete (*queIter);
+		delete (*nullQueIter);
+
+		queIter++;
+		nullQueIter++;
+	}
+
+	delete question;
+	delete nullQue;
 }
+
+#pragma endregion
+
+#pragma region RESPONSE 테이블 관련 작업
+
+void ProjectDAO::PrintResponseUsingContents(char * contents)
+{
+	SQLHSTMT hStmt;
+	RESPONSE response;
+	NULLRESPONSE nullRes;
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "SELECT R.RES_NUM, R.RES_ID, D.DOMAIN_NAME, R.RES_DATE, R.RES_CONTENTS FROM RESPONSE AS R, DOMAIN AS D WHERE R.RES_CONTENTS LIKE '%%%s%%' AND R.RES_DOMAIN_NUM = D.DOMAIN_NUM", contents);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+
+		SQLBindCol(hStmt, 1, SQL_C_CHAR, response.resNum, LENGTH_QUENUM, NULL);
+		SQLBindCol(hStmt, 2, SQL_C_CHAR, response.resID, LENGTH_ID, &(nullRes.resID));
+		SQLBindCol(hStmt, 3, SQL_C_CHAR, response.resDomain, LENGTH_DOMAIN_NUM, NULL);
+		SQLBindCol(hStmt, 4, SQL_C_CHAR, response.resDate, LENGTH_DATE, &(nullRes.resDate));
+		SQLBindCol(hStmt, 5, SQL_C_CHAR, response.resContents, LENGTH_CONTENTS, NULL);
+
+		while (SQLFetch(hStmt) != SQL_NO_DATA)
+		{
+			printf("%-5s %-20s %-20s %-15s\n", "R.NUM", "R.ID", "R.DOMAIN", "R.DATE");
+
+			printf("%-5s ", response.resNum);
+
+			if (nullRes.resID == SQL_NULL_DATA)
+			{
+				printf("%-20s ", "NULL");
+			}
+			else
+			{
+				printf("%-20s ", response.resID);
+			}
+			printf("%-20s ", response.resDomain);
+
+			if (nullRes.resDate == SQL_NULL_DATA)
+			{
+				printf("%-15s\n", "NULL");
+			}
+			else
+			{
+				printf("%-15s\n", response.resDate);
+			}
+			printf("\n%s\n\n", response.resContents);
+		}
+
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+#pragma endregion
+
+#pragma region DOMAIN 테이블 관련 작업
+
+void ProjectDAO::PrintDomainUsingName(char * name)
+{
+	SQLHSTMT hStmt;
+	DOMAIN_ domain;
+	NULLDOMAIN nullDomain;
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "SELECT D.DOMAIN_NUM, D.DOMAIN_NAME, D.COMPANY_NAME FROM DOMAIN AS D WHERE D.DOMAIN_NAME LIKE '%%%s%%'", name);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+
+		SQLBindCol(hStmt, 1, SQL_C_CHAR, domain.domainNum, LENGTH_QUENUM, NULL);
+		SQLBindCol(hStmt, 2, SQL_C_CHAR, domain.domainName, LENGTH_DOMAIN_NAME, NULL);
+		SQLBindCol(hStmt, 3, SQL_C_CHAR, domain.domainCompany, LENGTH_DOMAIN_COMPANY, &(nullDomain.domainCompany));
+
+		while (SQLFetch(hStmt) != SQL_NO_DATA)
+		{
+			printf("%-5s %-20s %-20s\n", "D.NUM", "D.NAME", "D.COMPANY");
+
+			printf("%-5s %=20s ", domain.domainNum, domain.domainName);
+
+			if (nullDomain.domainCompany == SQL_NULL_DATA)
+			{
+				printf("%-20s ", "NULL");
+			}
+			else
+			{
+				printf("%-20s ", domain.domainCompany);
+			}
+			printf("\n");
+		}
+
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+void ProjectDAO::PrintDomainUsingCompany(char * name)
+{
+	SQLHSTMT hStmt;
+	DOMAIN_ domain;
+	NULLDOMAIN nullDomain;
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "SELECT D.DOMAIN_NUM, D.DOMAIN_NAME, D.COMPANY_NAME FROM DOMAIN AS D WHERE D.COMPANY_NAME LIKE '%%%s%%'", name);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+
+		SQLBindCol(hStmt, 1, SQL_C_CHAR, domain.domainNum, LENGTH_QUENUM, NULL);
+		SQLBindCol(hStmt, 2, SQL_C_CHAR, domain.domainName, LENGTH_DOMAIN_NAME, NULL);
+		SQLBindCol(hStmt, 3, SQL_C_CHAR, domain.domainCompany, LENGTH_DOMAIN_COMPANY, &(nullDomain.domainCompany));
+
+		while (SQLFetch(hStmt) != SQL_NO_DATA)
+		{
+			printf("%-5s %-20s %-20s\n", "D.NUM", "D.NAME", "D.COMPANY");
+
+			printf("%-5s %=20s ", domain.domainNum, domain.domainName);
+
+			if (nullDomain.domainCompany == SQL_NULL_DATA)
+			{
+				printf("%-20s ", "NULL");
+			}
+			else
+			{
+				printf("%-20s ", domain.domainCompany);
+			}
+			printf("\n");
+		}
+
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+void ProjectDAO::PrintUsersAccordingDomain(char * domain)
+{
+	SQLHSTMT hStmt;
+	USERS users;
+	NULLUSERS nullUsers;
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "SELECT U.USER_ID, U.USER_JOIN_DATE, U.USER_EMAIL, U.USER_JOB FROM USERS AS U, DOMAIN AS D WHERE D.DOMAIN_NAME LIKE '%%s%%' AND D.DOMAIN_NUM = U.USER_DOMAIN_NUM", domain);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+
+		SQLBindCol(hStmt, 1, SQL_C_CHAR, users.userID, LENGTH_ID, NULL);
+		SQLBindCol(hStmt, 2, SQL_C_CHAR, users.userJoinDate, LENGTH_DATE, &(nullUsers.joinDate));
+		SQLBindCol(hStmt, 3, SQL_C_CHAR, users.userEmail, LENGTH_EMAIL, &(nullUsers.userEmail));
+		SQLBindCol(hStmt, 4, SQL_C_CHAR, users.userJob, LENGTH_JOB, &(nullUsers.userJob));
+
+		while (SQLFetch(hStmt) != SQL_NO_DATA)
+		{
+			printf("%-20s %-15s %-20s\n", "U.ID", "U.JOIN", "U.EMAIL");
+
+			printf("-20s ", users.userID);
+
+			if (nullUsers.joinDate == SQL_NULL_DATA)
+			{
+				printf("%-15s ", "NULL");
+			}
+			else
+			{
+				printf("%-15s ", users.userJoinDate);
+			}
+			
+			if (nullUsers.userEmail == SQL_NULL_DATA)
+			{
+				printf("%-20s ", "NULL");
+			}
+			else
+			{
+				printf("%-20s ", users.userEmail);
+			}
+
+			if (nullUsers.userJob == SQL_NULL_DATA)
+			{
+				printf("%-20s ", "NULL");
+			}
+			else
+			{
+				printf("%-20s ", users.userJob);
+			}
+		}
+
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+#pragma endregion
+
+
+#pragma region USERS 테이블에 관한 작업
+
+void ProjectDAO::PrintUsersUsingID(char * id)
+{
+	SQLHSTMT hStmt;
+	USERS users;
+	NULLUSERS nullUsers;
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "SELECT D.DOMAIN_NAME, U.USER_ID, U.USER_JOIN_DATE, U.USER_EMAIL, U.USER_JOB FROM USERS AS U, DOMAIN AS D WHERE U.USER_ID LIKE '%%%s%%' AND U.USER_DOMAIN_NUM = D.DOMAIN_NUM", id);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+
+		SQLBindCol(hStmt, 1, SQL_C_CHAR, users.domainName, LENGTH_DOMAIN_NAME, NULL);
+		SQLBindCol(hStmt, 2, SQL_C_CHAR, users.userID, LENGTH_ID, NULL);
+		SQLBindCol(hStmt, 3, SQL_C_CHAR, users.userJoinDate, LENGTH_DATE, &(nullUsers.joinDate));
+		SQLBindCol(hStmt, 4, SQL_C_CHAR, users.userEmail, LENGTH_EMAIL, &(nullUsers.userEmail));
+		SQLBindCol(hStmt, 5, SQL_C_CHAR, users.userJob, LENGTH_JOB, &(nullUsers.userJob));
+
+		while (SQLFetch(hStmt) != SQL_NO_DATA)
+		{
+			printf("%-20s %-20s %-15s %-20s\n", "D.NAME" "U.ID", "U.JOIN", "U.EMAIL");
+
+			printf("%-20s -20s ", users.domainName, users.userID);
+
+			if (nullUsers.joinDate == SQL_NULL_DATA)
+			{
+				printf("%-15s ", "NULL");
+			}
+			else
+			{
+				printf("%-15s ", users.userJoinDate);
+			}
+
+			if (nullUsers.userEmail == SQL_NULL_DATA)
+			{
+				printf("%-20s ", "NULL");
+			}
+			else
+			{
+				printf("%-20s ", users.userEmail);
+			}
+
+			if (nullUsers.userJob == SQL_NULL_DATA)
+			{
+				printf("%-20s ", "NULL");
+			}
+			else
+			{
+				printf("%-20s ", users.userJob);
+			}
+		}
+
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+void ProjectDAO::PrintUsersUsingDate(char * date)
+{
+	SQLHSTMT hStmt;
+	USERS users;
+	NULLUSERS nullUsers;
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "SELECT D.DOMAIN_NAME, U.USER_ID, U.USER_JOIN_DATE, U.USER_EMAIL, U.USER_JOB FROM USERS AS U, DOMAIN AS D WHERE U.USER_JOIN_DATE LIKE '%%%s%%' AND U.USER_DOMAIN_NUM = D.DOMAIN_NUM", date);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+
+		SQLBindCol(hStmt, 1, SQL_C_CHAR, users.domainName, LENGTH_DOMAIN_NAME, NULL);
+		SQLBindCol(hStmt, 2, SQL_C_CHAR, users.userID, LENGTH_ID, NULL);
+		SQLBindCol(hStmt, 3, SQL_C_CHAR, users.userJoinDate, LENGTH_DATE, &(nullUsers.joinDate));
+		SQLBindCol(hStmt, 4, SQL_C_CHAR, users.userEmail, LENGTH_EMAIL, &(nullUsers.userEmail));
+		SQLBindCol(hStmt, 5, SQL_C_CHAR, users.userJob, LENGTH_JOB, &(nullUsers.userJob));
+
+		while (SQLFetch(hStmt) != SQL_NO_DATA)
+		{
+			printf("%-20s %-20s %-15s %-20s\n", "D.NAME" "U.ID", "U.JOIN", "U.EMAIL");
+
+			printf("%-20s -20s ", users.domainName, users.userID);
+
+			if (nullUsers.joinDate == SQL_NULL_DATA)
+			{
+				printf("%-15s ", "NULL");
+			}
+			else
+			{
+				printf("%-15s ", users.userJoinDate);
+			}
+
+			if (nullUsers.userEmail == SQL_NULL_DATA)
+			{
+				printf("%-20s ", "NULL");
+			}
+			else
+			{
+				printf("%-20s ", users.userEmail);
+			}
+
+			if (nullUsers.userJob == SQL_NULL_DATA)
+			{
+				printf("%-20s ", "NULL");
+			}
+			else
+			{
+				printf("%-20s ", users.userJob);
+			}
+		}
+
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+void ProjectDAO::PrintUsersUsingJob(char * job)
+{
+	SQLHSTMT hStmt;
+	USERS users;
+	NULLUSERS nullUsers;
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "SELECT D.DOMAIN_NAME, U.USER_ID, U.USER_JOIN_DATE, U.USER_EMAIL, U.USER_JOB FROM USERS AS U, DOMAIN AS D WHERE U.USER_JOB LIKE '%%%s%%' AND U.USER_DOMAIN_NUM = D.DOMAIN_NUM", job);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+
+		SQLBindCol(hStmt, 1, SQL_C_CHAR, users.domainName, LENGTH_DOMAIN_NAME, NULL);
+		SQLBindCol(hStmt, 2, SQL_C_CHAR, users.userID, LENGTH_ID, NULL);
+		SQLBindCol(hStmt, 3, SQL_C_CHAR, users.userJoinDate, LENGTH_DATE, &(nullUsers.joinDate));
+		SQLBindCol(hStmt, 4, SQL_C_CHAR, users.userEmail, LENGTH_EMAIL, &(nullUsers.userEmail));
+		SQLBindCol(hStmt, 5, SQL_C_CHAR, users.userJob, LENGTH_JOB, &(nullUsers.userJob));
+
+		while (SQLFetch(hStmt) != SQL_NO_DATA)
+		{
+			printf("%-20s %-20s %-15s %-20s\n", "D.NAME" "U.ID", "U.JOIN", "U.EMAIL");
+
+			printf("%-20s -20s ", users.domainName, users.userID);
+
+			if (nullUsers.joinDate == SQL_NULL_DATA)
+			{
+				printf("%-15s ", "NULL");
+			}
+			else
+			{
+				printf("%-15s ", users.userJoinDate);
+			}
+
+			if (nullUsers.userEmail == SQL_NULL_DATA)
+			{
+				printf("%-20s ", "NULL");
+			}
+			else
+			{
+				printf("%-20s ", users.userEmail);
+			}
+
+			if (nullUsers.userJob == SQL_NULL_DATA)
+			{
+				printf("%-20s ", "NULL");
+			}
+			else
+			{
+				printf("%-20s ", users.userJob);
+			}
+		}
+
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+#pragma endregion

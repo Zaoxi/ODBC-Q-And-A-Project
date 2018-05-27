@@ -233,12 +233,13 @@ void MainController::selectQuestionControl()
 void MainController::selectResponseControl()
 {
 	char select;
+	char searchData[100];
 
 	while (true)
 	{
 		menu->ShowSelectResponseMenu();
 		cin >> select;
-
+		cin.get();
 		if (select < '0' || select > '1')
 		{
 			showOutOfIndex();
@@ -248,6 +249,8 @@ void MainController::selectResponseControl()
 		switch (select)
 		{
 		case '1':
+			cin.getline(searchData, 100);
+			dao->PrintResponseUsingContents(searchData);
 			break;
 		case '0':
 			return;
@@ -299,12 +302,12 @@ void MainController::selectUsersControl()
 void MainController::selectDomainControl()
 {
 	char select;
-	
+	char search[100];
 	while (true)
 	{
 		menu->ShowSelectDomainMenu();
 		cin >> select;
-
+		cin.get();
 		if (select < '0' || select > '3')
 		{
 			showOutOfIndex();
@@ -314,10 +317,19 @@ void MainController::selectDomainControl()
 		switch (select)
 		{
 		case '1':
+			cout << "NAME >> ";
+			cin.getline(search, 100);
+			dao->PrintDomainUsingName(search);
 			break;
 		case '2':
+			cout << "COMPANY >> ";
+			cin.getline(search, 100);
+			dao->PrintDomainUsingCompany(search);
 			break;
 		case '3':
+			cout << "NAME >> ";
+			cin.getline(search, 100);
+			dao->PrintUsersAccordingDomain(search);
 			break;
 		case '0':
 			return;

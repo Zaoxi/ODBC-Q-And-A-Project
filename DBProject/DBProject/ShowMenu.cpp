@@ -143,7 +143,7 @@ void ShowMenu::ShowSelectDomainMenu()
 	cout << "<SELECT DOMAIN 메뉴>" << endl;
 	cout << "1. DOMAIN 이름 검색" << endl;
 	cout << "2. DOMAIN 회사 검색" << endl;
-	cout << "3. DOMAIN에서 검색된 사이트에 등록된 유저정보" << endl;
+	cout << "3. 검색된 DOMAIN에 등록된 모든 유저정보 검색" << endl;
 	cout << "0. 뒤로 가기" << endl;
 	showLine();
 	cout << " >> ";

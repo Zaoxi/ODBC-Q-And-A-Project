@@ -19,6 +19,7 @@
 #define LENGTH_JOB 40
 
 #define LENGTH_DOMAIN_NAME 40
+#define LENGTH_DOMAIN_COMPANY 40
 #pragma endregion
 
 #pragma region DAO 데이터 처리에 필요한 각종 구조체 정의
@@ -52,19 +53,19 @@ typedef struct _nullAreaQuestionJoin
 
 typedef struct _users
 {
-	SQLCHAR domainNum[LENGTH_DOMAIN_NUM];
+	SQLCHAR domainName[LENGTH_DOMAIN_NAME];
 	SQLCHAR userID[LENGTH_ID];
 	SQLCHAR userJoinDate[LENGTH_DATE];
 	SQLCHAR userEmail[LENGTH_EMAIL];
 	SQLCHAR userJob[LENGTH_JOB];
-} UserData;
+} USERS;
 
 typedef struct _nullusers
 {
 	SQLINTEGER joinDate;
 	SQLINTEGER userEmail;
 	SQLINTEGER userJob;
-} nullUserData;
+} NULLUSERS;
 
 typedef struct _question
 {
@@ -106,6 +107,18 @@ typedef struct _nullResponse
 	SQLINTEGER resDate;
 } NULLRESPONSE;
 
+typedef struct _domain
+{
+	SQLCHAR domainNum[LENGTH_DOMAIN_NUM];
+	SQLCHAR domainName[LENGTH_DOMAIN_NAME];
+	SQLCHAR domainCompany[LENGTH_DOMAIN_COMPANY];
+} DOMAIN_;
+
+typedef struct _nullDomain
+{
+	SQLINTEGER domainCompany;
+} NULLDOMAIN;
+
 #pragma endregion
 
 class ProjectDAO
@@ -135,10 +148,30 @@ public:
 	void PrintAnswersInSelectedArea(char * bigClass, char * subClass);
 	// 선택된 분야에 답변한 유저 정보 출력, 4 Table Join
 	void PrintResponseUsersInSelectedArea(char * bigClass, char * subClass);
+
 	// SQL을 입력받아서 출력
 	void ExecuteSelectSQL();
+
 	// TITLE을 검색하여 원하는 질문과 답변 출력
 	void PrintQuestionUsingTitle(char * title);
 	// CONTENTS를 검색하여 원하는 질문과 답변 출력
 	void PrintQuestionUsingContents(char * contents);
+
+	// 내용을 검색하여 원하는 답변 출력
+	void PrintResponseUsingContents(char * contents);
+
+	// DOMAIN 이름으로 DOMAIN 검색
+	void PrintDomainUsingName(char * name);
+	// DOMAIN 회사이름으로 DOMAIN 검색
+	void PrintDomainUsingCompany(char * name);
+	// 검색된 DOMAIN에 등록된 모든 유저정보 검색
+	void PrintUsersAccordingDomain(char * domain);
+
+	// USERS 아이디 검색
+	void PrintUsersUsingID(char * id);
+	// USERS 가입일 검색
+	void PrintUsersUsingDate(char * date);
+	// USERS 직업 검색
+	void PrintUsersUsingJob(char * job);
+
 };

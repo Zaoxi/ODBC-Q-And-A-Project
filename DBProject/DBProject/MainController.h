@@ -10,15 +10,6 @@ private :
 	// 지정된 입력의 범위를 넘어서 입력되면 호출되는 메소드
 	void showOutOfIndex();
 
-	// 분야 메뉴 컨트롤 메소드
-	void areaControl();
-	// 분야 서브 메뉴 컨트롤 메소드
-	void selectedAreaControl();
-	// 선택된 분야와 관련된 정보 모두 출력
-	void allDataInSeletedArea(char select);
-
-
-
 	void selectMenuControl();
 	void insertMenuControl();
 	void deleteMenuControl();
