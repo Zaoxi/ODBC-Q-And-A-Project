@@ -391,17 +391,16 @@ void ProjectDAO::ExecuteSelectSQL()
 void ProjectDAO::PrintQuestionUsingTitle(char * title)
 {
 	SQLHSTMT hStmt;
-	SQLSMALLINT colCount = -1;
 	list<QUESTION*> * question = new list<QUESTION*>();
-	RESPONSE response;
-	QUESTION * tempQue;
+	RESPONSE * response = new RESPONSE();
+	QUESTION * tempQue = new QUESTION();
 	list<NULLQUESTION*> * nullQue = new list<NULLQUESTION*>();
 	NULLQUESTION * nullTempQue;
-	NULLRESPONSE nullRes;
+	NULLRESPONSE * nullRes = new NULLRESPONSE();
 
 	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 	{
-		sprintf((char*)query, "SELECT Q.QUE_NUM, Q.QUE_ID, D.DOMAIN_NAME, Q.QUE_DATE, Q.QUE_TITLE, Q.QUE_CONTENTS FROM QUESTION AS Q, DOMAIN AS D WHERE Q.QUE_TITLE LIKE '%s%%' AND Q.QUE_DOMAIN_NUM = D.DOMAIN_NUM", title);
+		sprintf((char*)query, "SELECT Q.QUE_NUM, Q.QUE_ID, D.DOMAIN_NAME, Q.QUE_DATE, Q.QUE_TITLE, Q.QUE_CONTENTS FROM QUESTION AS Q, DOMAIN AS D WHERE Q.QUE_TITLE LIKE '%%%s%%' AND Q.QUE_DOMAIN_NUM = D.DOMAIN_NUM", title);
 		SQLExecDirect(hStmt, query, SQL_NTS);
 
 		while (true)
@@ -409,12 +408,12 @@ void ProjectDAO::PrintQuestionUsingTitle(char * title)
 			tempQue = new QUESTION();
 			nullTempQue = new NULLQUESTION();
 			
-			SQLBindCol(hStmt, 1, SQL_C_CHAR, &(tempQue->queNum), LENGTH_QUENUM, NULL);
-			SQLBindCol(hStmt, 2, SQL_C_CHAR, &(tempQue->queID), LENGTH_ID, &(nullTempQue->queID));
-			SQLBindCol(hStmt, 3, SQL_C_CHAR, &(tempQue->queDomain), LENGTH_DOMAIN_NUM, NULL);
-			SQLBindCol(hStmt, 4, SQL_C_CHAR, &(tempQue->queDate), LENGTH_DATE, &(nullTempQue->queDate));
-			SQLBindCol(hStmt, 5, SQL_C_CHAR, &(tempQue->queTitle), LENGTH_TITLE, NULL);
-			SQLBindCol(hStmt, 6, SQL_C_CHAR, &(tempQue->queContents), LENGTH_CONTENTS, NULL);
+			SQLBindCol(hStmt, 1, SQL_C_CHAR, (tempQue->queNum), LENGTH_QUENUM, NULL);
+			SQLBindCol(hStmt, 2, SQL_C_CHAR, (tempQue->queID), LENGTH_ID, &(nullTempQue->queID));
+			SQLBindCol(hStmt, 3, SQL_C_CHAR, (tempQue->queDomain), LENGTH_DOMAIN_NUM, NULL);
+			SQLBindCol(hStmt, 4, SQL_C_CHAR, (tempQue->queDate), LENGTH_DATE, &(nullTempQue->queDate));
+			SQLBindCol(hStmt, 5, SQL_C_CHAR, (tempQue->queTitle), LENGTH_TITLE, NULL);
+			SQLBindCol(hStmt, 6, SQL_C_CHAR, (tempQue->queContents), LENGTH_CONTENTS, NULL);
 
 			if (SQLFetch(hStmt) == SQL_NO_DATA)
 			{
@@ -437,15 +436,15 @@ void ProjectDAO::PrintQuestionUsingTitle(char * title)
 	{
 		if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 		{
-			sprintf((char*)query, "SELECT R.RES_NUM, R.RES_ID, D.DOMAIN_NAME, R.RES_DATE, R.RES_CONTENTS FROM RESPONSE AS R, RESPOND AS QR, DOMAIN AS D WHERE QR.QUE_NUM = %s AND R.RES_NUM = QR.RES_NUM AND R.RES_DOMAIN_NUM = D.DOMAIN_NUM", (*queIter)->queID);
+			sprintf((char*)query, "SELECT R.RES_NUM, R.RES_ID, D.DOMAIN_NAME, R.RES_DATE, R.RES_CONTENTS FROM RESPONSE AS R, RESPOND AS QR, DOMAIN AS D WHERE QR.QUE_NUM = %s AND R.RES_NUM = QR.RES_NUM AND R.RES_DOMAIN_NUM = D.DOMAIN_NUM", (*queIter)->queNum);
 			SQLExecDirect(hStmt, query, SQL_NTS);
 
-			SQLBindCol(hStmt, 1, SQL_C_CHAR, &(response.resNum), LENGTH_QUENUM, NULL);
-			SQLBindCol(hStmt, 2, SQL_C_CHAR, &(response.resID), LENGTH_ID, &(nullRes.resID));
-			SQLBindCol(hStmt, 3, SQL_C_CHAR, &(response.resDomain), LENGTH_DOMAIN_NAME, NULL);
-			SQLBindCol(hStmt, 4, SQL_C_CHAR, &(response.resDate), LENGTH_DATE, &(nullRes.resDate));
-			SQLBindCol(hStmt, 5, SQL_C_CHAR, &(response.resContents), LENGTH_CONTENTS, NULL);
-
+			SQLBindCol(hStmt, 1, SQL_C_CHAR, (response->resNum), LENGTH_QUENUM, NULL);
+			SQLBindCol(hStmt, 2, SQL_C_CHAR, (response->resID), LENGTH_ID, &(nullRes->resID));
+			SQLBindCol(hStmt, 3, SQL_C_CHAR, (response->resDomain), LENGTH_DOMAIN_NAME, NULL);
+			SQLBindCol(hStmt, 4, SQL_C_CHAR, (response->resDate), LENGTH_DATE, &(nullRes->resDate));
+			SQLBindCol(hStmt, 5, SQL_C_CHAR, (response->resContents), LENGTH_CONTENTS, NULL);
+			printf("<질문>\n\n");
 			printf("%-5s %-20s %-20s %-15s\n", "Q.NUM", "Q.ID", "Q.DOMAIN", "Q.DATE");
 			printf("%-5s ", (*queIter)->queNum);
 			if ((*nullQueIter)->queID == SQL_NULL_DATA)
@@ -468,31 +467,33 @@ void ProjectDAO::PrintQuestionUsingTitle(char * title)
 			printf("\nTITLE : %s\n\n", (*queIter)->queTitle);
 			printf("%s\n\n\n", (*queIter)->queContents);
 
+			
 			while (SQLFetch(hStmt) != SQL_NO_DATA)
 			{
+				printf("<답변>\n\n");
 				printf("%-5s %-20s %-20s %-15s\n", "R.NUM", "R.ID", "R.DOMAIN", "R.DATE");
 
-				printf("%-5s ", response.resNum);
+				printf("%-5s ", response->resNum);
 
-				if (nullRes.resID == SQL_NULL_DATA)
+				if (nullRes->resID == SQL_NULL_DATA)
 				{
 					printf("%-20s ", "NULL");
 				}
 				else
 				{
-					printf("%-20s ", response.resID);
+					printf("%-20s ", response->resID);
 				}
-				printf("%-20s ", response.resDomain);
+				printf("%-20s ", response->resDomain);
 
-				if (nullRes.resDate == SQL_NULL_DATA)
+				if (nullRes->resDate == SQL_NULL_DATA)
 				{
 					printf("%-15s\n", "NULL");
 				}
 				else
 				{
-					printf("%-15s\n", response.resDate);
+					printf("%-15s\n", response->resDate);
 				}
-				printf("\n%s\n\n", response.resContents);
+				printf("\n%s\n\n", response->resContents);
 			}
 
 			queIter++;
@@ -506,7 +507,6 @@ void ProjectDAO::PrintQuestionUsingTitle(char * title)
 void ProjectDAO::PrintQuestionUsingContents(char * contents)
 {
 	SQLHSTMT hStmt;
-	SQLSMALLINT colCount = -1;
 	list<QUESTION*> * question = new list<QUESTION*>();
 	RESPONSE response;
 	QUESTION * tempQue;
@@ -516,7 +516,7 @@ void ProjectDAO::PrintQuestionUsingContents(char * contents)
 
 	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 	{
-		sprintf((char*)query, "SELECT Q.QUE_NUM, Q.QUE_ID, D.DOMAIN_NAME, Q.QUE_DATE, Q.QUE_TITLE, Q.QUE_CONTENTS FROM QUESTION AS Q, DOMAIN AS D WHERE Q.QUE_CONTENTS LIKE '%s%%' AND Q.QUE_DOMAIN_NUM = D.DOMAIN_NUM", contents);
+		sprintf((char*)query, "SELECT Q.QUE_NUM, Q.QUE_ID, D.DOMAIN_NAME, Q.QUE_DATE, Q.QUE_TITLE, Q.QUE_CONTENTS FROM QUESTION AS Q, DOMAIN AS D WHERE Q.QUE_CONTENTS LIKE '%%%s%%' AND Q.QUE_DOMAIN_NUM = D.DOMAIN_NUM", contents);
 		SQLExecDirect(hStmt, query, SQL_NTS);
 
 		while (true)
@@ -524,12 +524,12 @@ void ProjectDAO::PrintQuestionUsingContents(char * contents)
 			tempQue = new QUESTION();
 			nullTempQue = new NULLQUESTION();
 
-			SQLBindCol(hStmt, 1, SQL_C_CHAR, &(tempQue->queNum), LENGTH_QUENUM, NULL);
-			SQLBindCol(hStmt, 2, SQL_C_CHAR, &(tempQue->queID), LENGTH_ID, &(nullTempQue->queID));
-			SQLBindCol(hStmt, 3, SQL_C_CHAR, &(tempQue->queDomain), LENGTH_DOMAIN_NUM, NULL);
-			SQLBindCol(hStmt, 4, SQL_C_CHAR, &(tempQue->queDate), LENGTH_DATE, &(nullTempQue->queDate));
-			SQLBindCol(hStmt, 5, SQL_C_CHAR, &(tempQue->queTitle), LENGTH_TITLE, NULL);
-			SQLBindCol(hStmt, 6, SQL_C_CHAR, &(tempQue->queContents), LENGTH_CONTENTS, NULL);
+			SQLBindCol(hStmt, 1, SQL_C_CHAR, (tempQue->queNum), LENGTH_QUENUM, NULL);
+			SQLBindCol(hStmt, 2, SQL_C_CHAR, (tempQue->queID), LENGTH_ID, &(nullTempQue->queID));
+			SQLBindCol(hStmt, 3, SQL_C_CHAR, (tempQue->queDomain), LENGTH_DOMAIN_NUM, NULL);
+			SQLBindCol(hStmt, 4, SQL_C_CHAR, (tempQue->queDate), LENGTH_DATE, &(nullTempQue->queDate));
+			SQLBindCol(hStmt, 5, SQL_C_CHAR, (tempQue->queTitle), LENGTH_TITLE, NULL);
+			SQLBindCol(hStmt, 6, SQL_C_CHAR, (tempQue->queContents), LENGTH_CONTENTS, NULL);
 
 			if (SQLFetch(hStmt) == SQL_NO_DATA)
 			{
@@ -552,7 +552,7 @@ void ProjectDAO::PrintQuestionUsingContents(char * contents)
 	{
 		if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 		{
-			sprintf((char*)query, "SELECT R.RES_NUM, R.RES_ID, D.DOMAIN_NAME, R.RES_DATE, R.RES_CONTENTS FROM RESPONSE AS R, RESPOND AS QR, DOMAIN AS D WHERE QR.QUE_NUM = %s AND QR.RES_NUM = R.RES_NUM AND R.RES_DOMAIN_NUM = D.DOMAIN_NUM", (*queIter)->queID);
+			sprintf((char*)query, "SELECT R.RES_NUM, R.RES_ID, D.DOMAIN_NAME, R.RES_DATE, R.RES_CONTENTS FROM RESPONSE AS R, RESPOND AS QR, DOMAIN AS D WHERE QR.QUE_NUM = %s AND QR.RES_NUM = R.RES_NUM AND R.RES_DOMAIN_NUM = D.DOMAIN_NUM", (*queIter)->queNum);
 			SQLExecDirect(hStmt, query, SQL_NTS);
 
 			SQLBindCol(hStmt, 1, SQL_C_CHAR, response.resNum, LENGTH_QUENUM, NULL);
@@ -560,7 +560,7 @@ void ProjectDAO::PrintQuestionUsingContents(char * contents)
 			SQLBindCol(hStmt, 3, SQL_C_CHAR, response.resDomain, LENGTH_DOMAIN_NAME, NULL);
 			SQLBindCol(hStmt, 4, SQL_C_CHAR, response.resDate, LENGTH_DATE, &(nullRes.resDate));
 			SQLBindCol(hStmt, 5, SQL_C_CHAR, response.resContents, LENGTH_CONTENTS, NULL);
-
+			printf("<질문>\n\n");
 			printf("%-5s %-20s %-20s %-15s\n", "Q.NUM", "Q.ID", "Q.DOMAIN", "Q.DATE");
 			printf("%-5s ", (*queIter)->queNum);
 			if ((*nullQueIter)->queID == SQL_NULL_DATA)
@@ -585,6 +585,7 @@ void ProjectDAO::PrintQuestionUsingContents(char * contents)
 
 			while (SQLFetch(hStmt) != SQL_NO_DATA)
 			{
+				printf("<답변>\n\n");
 				printf("%-5s %-20s %-20s %-15s\n", "R.NUM", "R.ID", "R.DOMAIN", "R.DATE");
 
 				printf("%-5s ", response.resNum);

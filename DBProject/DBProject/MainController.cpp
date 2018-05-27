@@ -199,7 +199,7 @@ void MainController::selectQuestionControl()
 	{
 		menu->ShowSelectQuestionMenu();
 		cin >> select;
-
+		cin.get();
 		if (select < '0' || select > '2')
 		{
 			showOutOfIndex();
@@ -210,12 +210,12 @@ void MainController::selectQuestionControl()
 		{
 		case '1':
 			cout << "TITLE >> ";
-			cin >> searchData;
+			cin.getline(searchData, 100);
 			dao->PrintQuestionUsingTitle(searchData);
 			break;
 		case '2':
 			cout << "CONTENTS >> ";
-			cin >> searchData;
+			cin.getline(searchData, 100);
 			dao->PrintQuestionUsingContents(searchData);
 			break;
 		case '0':
