@@ -727,7 +727,7 @@ void ProjectDAO::PrintDomainUsingName(char * name)
 		{
 			printf("%-5s %-20s %-20s\n", "D.NUM", "D.NAME", "D.COMPANY");
 
-			printf("%-5s %=20s ", domain.domainNum, domain.domainName);
+			printf("%-5s %-20s ", domain.domainNum, domain.domainName);
 
 			if (nullDomain.domainCompany == SQL_NULL_DATA)
 			{
@@ -764,7 +764,7 @@ void ProjectDAO::PrintDomainUsingCompany(char * name)
 		{
 			printf("%-5s %-20s %-20s\n", "D.NUM", "D.NAME", "D.COMPANY");
 
-			printf("%-5s %=20s ", domain.domainNum, domain.domainName);
+			printf("%-5s %-20s ", domain.domainNum, domain.domainName);
 
 			if (nullDomain.domainCompany == SQL_NULL_DATA)
 			{
@@ -790,19 +790,17 @@ void ProjectDAO::PrintUsersAccordingDomain(char * domain)
 
 	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 	{
-		sprintf((char*)query, "SELECT U.USER_ID, U.USER_JOIN_DATE, U.USER_EMAIL, U.USER_JOB FROM USERS AS U, DOMAIN AS D WHERE D.DOMAIN_NAME LIKE '%%s%%' AND D.DOMAIN_NUM = U.USER_DOMAIN_NUM", domain);
+		sprintf((char*)query, "SELECT U.USER_ID, U.USER_JOIN_DATE, U.USER_EMAIL, U.USER_JOB FROM USERS AS U, DOMAIN AS D WHERE D.DOMAIN_NAME LIKE '%%%s%%' AND D.DOMAIN_NUM = U.USER_DOMAIN_NUM", domain);
 		SQLExecDirect(hStmt, query, SQL_NTS);
 
 		SQLBindCol(hStmt, 1, SQL_C_CHAR, users.userID, LENGTH_ID, NULL);
 		SQLBindCol(hStmt, 2, SQL_C_CHAR, users.userJoinDate, LENGTH_DATE, &(nullUsers.joinDate));
 		SQLBindCol(hStmt, 3, SQL_C_CHAR, users.userEmail, LENGTH_EMAIL, &(nullUsers.userEmail));
 		SQLBindCol(hStmt, 4, SQL_C_CHAR, users.userJob, LENGTH_JOB, &(nullUsers.userJob));
-
+		printf("%-20s %-15s %-20s\n", "U.ID", "U.JOIN", "U.EMAIL");
 		while (SQLFetch(hStmt) != SQL_NO_DATA)
 		{
-			printf("%-20s %-15s %-20s\n", "U.ID", "U.JOIN", "U.EMAIL");
-
-			printf("-20s ", users.userID);
+			printf("%-20s ", users.userID);
 
 			if (nullUsers.joinDate == SQL_NULL_DATA)
 			{
@@ -830,6 +828,8 @@ void ProjectDAO::PrintUsersAccordingDomain(char * domain)
 			{
 				printf("%-20s ", users.userJob);
 			}
+
+			printf("\n");
 		}
 
 		SQLCloseCursor(hStmt);
@@ -858,12 +858,10 @@ void ProjectDAO::PrintUsersUsingID(char * id)
 		SQLBindCol(hStmt, 3, SQL_C_CHAR, users.userJoinDate, LENGTH_DATE, &(nullUsers.joinDate));
 		SQLBindCol(hStmt, 4, SQL_C_CHAR, users.userEmail, LENGTH_EMAIL, &(nullUsers.userEmail));
 		SQLBindCol(hStmt, 5, SQL_C_CHAR, users.userJob, LENGTH_JOB, &(nullUsers.userJob));
-
+		printf("%-20s %-20s %-15s %-20s\n", "D.NAME", "U.ID", "U.JOIN", "U.EMAIL");
 		while (SQLFetch(hStmt) != SQL_NO_DATA)
 		{
-			printf("%-20s %-20s %-15s %-20s\n", "D.NAME" "U.ID", "U.JOIN", "U.EMAIL");
-
-			printf("%-20s -20s ", users.domainName, users.userID);
+			printf("%-20s %-20s ", users.domainName, users.userID);
 
 			if (nullUsers.joinDate == SQL_NULL_DATA)
 			{
@@ -891,6 +889,8 @@ void ProjectDAO::PrintUsersUsingID(char * id)
 			{
 				printf("%-20s ", users.userJob);
 			}
+
+			printf("\n");
 		}
 
 		SQLCloseCursor(hStmt);
@@ -915,11 +915,11 @@ void ProjectDAO::PrintUsersUsingDate(char * date)
 		SQLBindCol(hStmt, 4, SQL_C_CHAR, users.userEmail, LENGTH_EMAIL, &(nullUsers.userEmail));
 		SQLBindCol(hStmt, 5, SQL_C_CHAR, users.userJob, LENGTH_JOB, &(nullUsers.userJob));
 
+
+		printf("%-20s %-20s %-15s %-20s\n", "D.NAME", "U.ID", "U.JOIN", "U.EMAIL");
 		while (SQLFetch(hStmt) != SQL_NO_DATA)
 		{
-			printf("%-20s %-20s %-15s %-20s\n", "D.NAME" "U.ID", "U.JOIN", "U.EMAIL");
-
-			printf("%-20s -20s ", users.domainName, users.userID);
+			printf("%-20s %-20s ", users.domainName, users.userID);
 
 			if (nullUsers.joinDate == SQL_NULL_DATA)
 			{
@@ -947,6 +947,7 @@ void ProjectDAO::PrintUsersUsingDate(char * date)
 			{
 				printf("%-20s ", users.userJob);
 			}
+			printf("\n");
 		}
 
 		SQLCloseCursor(hStmt);
@@ -971,11 +972,11 @@ void ProjectDAO::PrintUsersUsingJob(char * job)
 		SQLBindCol(hStmt, 4, SQL_C_CHAR, users.userEmail, LENGTH_EMAIL, &(nullUsers.userEmail));
 		SQLBindCol(hStmt, 5, SQL_C_CHAR, users.userJob, LENGTH_JOB, &(nullUsers.userJob));
 
+		printf("%-20s %-20s %-15s %-20s\n", "D.NAME", "U.ID", "U.JOIN", "U.EMAIL");
+
 		while (SQLFetch(hStmt) != SQL_NO_DATA)
 		{
-			printf("%-20s %-20s %-15s %-20s\n", "D.NAME" "U.ID", "U.JOIN", "U.EMAIL");
-
-			printf("%-20s -20s ", users.domainName, users.userID);
+			printf("%-20s %-20s ", users.domainName, users.userID);
 
 			if (nullUsers.joinDate == SQL_NULL_DATA)
 			{
@@ -1003,6 +1004,7 @@ void ProjectDAO::PrintUsersUsingJob(char * job)
 			{
 				printf("%-20s ", users.userJob);
 			}
+			printf("\n");
 		}
 
 		SQLCloseCursor(hStmt);

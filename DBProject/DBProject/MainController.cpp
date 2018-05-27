@@ -267,12 +267,13 @@ void MainController::selectResponseControl()
 void MainController::selectUsersControl()
 {
 	char select;
+	char search[100];
 
 	while (true)
 	{
 		menu->ShowSelectUsersMenu();
 		cin >> select;
-
+		cin.get();
 		if (select < '0' || select > '3')
 		{
 			showOutOfIndex();
@@ -282,10 +283,19 @@ void MainController::selectUsersControl()
 		switch (select)
 		{
 		case '1':
+			cout << "ID >> ";
+			cin.getline(search, 100);
+			dao->PrintUsersUsingID(search);
 			break;
 		case '2':
+			cout << "DATE(Y-M-D) >> ";
+			cin.getline(search, 100);
+			dao->PrintUsersUsingDate(search);
 			break;
 		case '3':
+			cout << "JOB >> ";
+			cin.getline(search, 100);
+			dao->PrintUsersUsingJob(search);
 			break;
 		case '0':
 			return;
