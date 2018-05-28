@@ -1033,7 +1033,7 @@ void ProjectDAO::InsertArea()
 
 	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 	{
-		sprintf((char*)query, "INSERT INTO AREA VALUES(%s, %s, %s)");
+		sprintf((char*)query, "INSERT INTO AREA VALUES('%s', '%s', '%s', 0, NULL, NULL)", newArea.bigClass, newArea.subClass, newArea.contents);
 		SQLExecDirect(hStmt, query, SQL_NTS);
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
@@ -1053,6 +1053,7 @@ void ProjectDAO::InsertQuestion()
 	QUESTION newQuestion;
 	int maxKey = 0;
 	int tempKey = 0;
+	char select;
 
 	// 도메인 검색
 	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
@@ -1088,14 +1089,14 @@ void ProjectDAO::InsertQuestion()
 				maxKey = tempKey;
 			}
 		}
-
+		maxKey++;
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	}
-
+	
 	while (true)
 	{
-		printf("%-10s %-20s", "D.NUM", "D.NAME");
+		printf("%-10s %-20s\n", "D.NUM", "D.NAME");
 		hash_map<int, char*>::iterator domainIter = domain->begin();
 		while (domainIter != domain->end())
 		{
@@ -1113,29 +1114,69 @@ void ProjectDAO::InsertQuestion()
 			cout << "등록되지 않은 사이트입니다." << endl;
 			continue;
 		}
+		else
+		{
+			break;
+		}
 	}
 	cout << "대분야 >> ";
 	cin.getline(bigClass, LENGTH_BIGCLASS);
 	cout << "소분야 >> ";
 	cin.getline(subClass, LENGTH_SUBCLASS);
-	cout << "ID >> ";
-	cin.getline((char*)newQuestion.queID, LENGTH_ID);
-	cout << "작성일(Y-M-D) >> ";
-	cin.getline((char*)newQuestion.queDate, LENGTH_DATE);
-	cout << "제목 >> ";
-	cin.getline((char*)newQuestion.queTitle, LENGTH_TITLE);
-	cout << "내용 >> ";
-	cin.getline((char*)newQuestion.queContents, LENGTH_CONTENTS);
 
-	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	while (true)
 	{
-		sprintf((char*)query, "INSERT INTO QUESTION VALUES(%d, %s, %s, %s, %d, %s, %s, %s)", maxKey, bigClass, subClass, newQuestion.queID, domainNum, newQuestion.queDate, newQuestion.queTitle, newQuestion.queContents);
-		SQLExecDirect(hStmt, query, SQL_NTS);
+		cout << "ID가 비공개입니까?(Y/N) >> ";
+		cin >> select;
+		cin.get();
 
-		SQLCloseCursor(hStmt);
-		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+		if (select == 'Y' || select == 'y')
+		{
+			cout << "작성일(Y-M-D) >> ";
+			cin.getline((char*)newQuestion.queDate, LENGTH_DATE);
+			cout << "제목 >> ";
+			cin.getline((char*)newQuestion.queTitle, LENGTH_TITLE);
+			cout << "내용 >> ";
+			cin.getline((char*)newQuestion.queContents, LENGTH_CONTENTS);
+
+			if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+			{
+				sprintf((char*)query, "INSERT INTO QUESTION VALUES(%d, '%s', '%s', NULL, %d, '%s', '%s', '%s')", maxKey, bigClass, subClass, domainNum, newQuestion.queDate, newQuestion.queTitle, newQuestion.queContents);
+				SQLExecDirect(hStmt, query, SQL_NTS);
+
+				SQLCloseCursor(hStmt);
+				SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+			}
+			break;
+		}
+		else if (select == 'N' || select == 'n')
+		{
+			cout << "ID >> ";
+			cin.getline((char*)newQuestion.queID, LENGTH_ID);
+			cout << "작성일(Y-M-D) >> ";
+			cin.getline((char*)newQuestion.queDate, LENGTH_DATE);
+			cout << "제목 >> ";
+			cin.getline((char*)newQuestion.queTitle, LENGTH_TITLE);
+			cout << "내용 >> ";
+			cin.getline((char*)newQuestion.queContents, LENGTH_CONTENTS);
+
+			if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+			{
+				sprintf((char*)query, "INSERT INTO QUESTION VALUES(%d, '%s', '%s', '%s', %d, '%s', '%s', '%s')", maxKey, bigClass, subClass, newQuestion.queID, domainNum, newQuestion.queDate, newQuestion.queTitle, newQuestion.queContents);
+				SQLExecDirect(hStmt, query, SQL_NTS);
+
+				SQLCloseCursor(hStmt);
+				SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+			}
+			break;
+		}
+		else
+		{
+			cout << "잘못된 입력입니다." << endl << endl;
+		}
 	}
-	cout << domainNum << "번의 질문이 입력되었습니다." << endl;
+
+	cout << domainNum << "번에 " << maxKey << "번의 질문이 입력되었습니다." << endl;
 	InitializeAreaCount();
 }
 
@@ -1185,7 +1226,7 @@ void ProjectDAO::InsertResponse()
 				maxKey = tempKey;
 			}
 		}
-
+		maxKey++;
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	}
@@ -1208,7 +1249,7 @@ void ProjectDAO::InsertResponse()
 
 	while (true)
 	{
-		printf("%-10s %-20s", "D.NUM", "D.NAME");
+		printf("%-10s %-20s\n", "D.NUM", "D.NAME");
 		hash_map<int, char*>::iterator domainIter = domain->begin();
 		while (domainIter != domain->end())
 		{
@@ -1226,12 +1267,17 @@ void ProjectDAO::InsertResponse()
 			cout << "등록되지 않은 사이트입니다." << endl;
 			continue;
 		}
+		else
+		{
+			break;
+		}
 	}
 
 	while (true)
 	{
 		cout << "답변할 질문 번호 >> ";
 		cin >> tempKey;
+		cin.get();
 		list<int>::iterator queIter = queNum->begin();
 
 		while (queIter != queNum->end())
@@ -1241,6 +1287,7 @@ void ProjectDAO::InsertResponse()
 				isFind = 1;
 				break;
 			}
+			queIter++;
 		}
 		if (isFind == 0)
 		{
@@ -1261,7 +1308,7 @@ void ProjectDAO::InsertResponse()
 
 	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 	{
-		sprintf((char*)query, "INSERT INTO RESPONSE VALUES(%d, %s, %d, %s, %s)", maxKey, response.resID, domainNum, response.resDate, response.resContents);
+		sprintf((char*)query, "INSERT INTO RESPONSE VALUES(%d, '%s', %d, '%s', '%s')", maxKey, response.resID, domainNum, response.resDate, response.resContents);
 		SQLExecDirect(hStmt, query, SQL_NTS);
 
 		SQLCloseCursor(hStmt);
@@ -1313,7 +1360,7 @@ void ProjectDAO::InsertDomain()
 				maxKey = tempKey;
 			}
 		}
-
+		maxKey++;
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	}
@@ -1359,7 +1406,7 @@ void ProjectDAO::InsertDomain()
 
 		if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 		{
-			sprintf((char*)query, "INSERT INTO DOMAIN VALUES(%d, %s, %d, %s)", maxKey, domain.domainName, select, domain.domainCompany);
+			sprintf((char*)query, "INSERT INTO DOMAIN VALUES(%d, '%s', %d, '%s')", maxKey, domain.domainName, select, domain.domainCompany);
 			SQLExecDirect(hStmt, query, SQL_NTS);
 
 			SQLCloseCursor(hStmt);
@@ -1375,7 +1422,7 @@ void ProjectDAO::InsertDomain()
 
 		if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 		{
-			sprintf((char*)query, "INSERT INTO RESPONSE VALUES(%d, %s, NULL, %s)", maxKey, domain.domainName, domain.domainCompany);
+			sprintf((char*)query, "INSERT INTO RESPONSE VALUES(%d, '%s', NULL, '%s')", maxKey, domain.domainName, domain.domainCompany);
 			SQLExecDirect(hStmt, query, SQL_NTS);
 
 			SQLCloseCursor(hStmt);
@@ -1413,7 +1460,7 @@ void ProjectDAO::InsertUsers()
 
 	while (true)
 	{
-		printf("%-10s %-20s", "D.NUM", "D.NAME");
+		printf("%-10s %-20s\n", "D.NUM", "D.NAME");
 		hash_map<int, char*>::iterator domainIter = domain->begin();
 		while (domainIter != domain->end())
 		{
@@ -1431,6 +1478,10 @@ void ProjectDAO::InsertUsers()
 			cout << "등록되지 않은 사이트입니다." << endl;
 			continue;
 		}
+		else
+		{
+			break;
+		}
 	}
 	cout << "ID >> ";
 	cin >> newUser.userID;
@@ -1447,7 +1498,7 @@ void ProjectDAO::InsertUsers()
 
 	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 	{
-		sprintf((char*)query, "INSERT INTO USERS VALUES(%d, %s, %s, %s, %s)", domainNum, newUser.userID, newUser.userJoinDate, newUser.userEmail, newUser.userJob);
+		sprintf((char*)query, "INSERT INTO USERS VALUES(%d, '%s', '%s', '%s', '%s')", domainNum, newUser.userID, newUser.userJoinDate, newUser.userEmail, newUser.userJob);
 		SQLExecDirect(hStmt, query, SQL_NTS);
 
 		SQLCloseCursor(hStmt);

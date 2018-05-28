@@ -363,7 +363,7 @@ void MainController::insertMenuControl()
 	{
 		menu->ShowInsertMenu();
 		cin >> select;
-
+		cin.get();
 		if (select < '0' || select > '5')
 		{
 			showOutOfIndex();
@@ -373,13 +373,16 @@ void MainController::insertMenuControl()
 		switch (select)
 		{
 		case '1':
-			dao->InsertUsers();
+			dao->InsertArea();
 			return;
 		case '2':
+			dao->InsertQuestion();
 			return;
 		case '3':
+			dao->InsertResponse();
 			return;
 		case '4':
+			dao->InsertDomain();
 			return;
 		case '5':
 			dao->InsertUsers();
