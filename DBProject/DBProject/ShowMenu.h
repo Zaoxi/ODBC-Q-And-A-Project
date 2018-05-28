@@ -22,7 +22,7 @@ public :
 	void ShowSelectDomainMenu();
 	void ShowSelectUsersMenu();
 
-	// INSERT QUESTION에 관한 메소드
-
+	// INSERT TABLE에 관한 메소드
+	
 };
 

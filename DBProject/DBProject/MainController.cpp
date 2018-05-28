@@ -373,6 +373,7 @@ void MainController::insertMenuControl()
 		switch (select)
 		{
 		case '1':
+			dao->InsertUsers();
 			return;
 		case '2':
 			return;
@@ -381,6 +382,7 @@ void MainController::insertMenuControl()
 		case '4':
 			return;
 		case '5':
+			dao->InsertUsers();
 			return;
 		case '0':
 			return;

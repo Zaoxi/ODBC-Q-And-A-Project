@@ -10,6 +10,7 @@
 #define LENGTH_DATE 15
 #define LENGTH_TITLE 100
 #define LENGTH_CONTENTS 4000
+#define LENGTH_AREA_CONTENTS 200
 
 #define LENGTH_BIGCLASS 20
 #define LENGTH_SUBCLASS 20
@@ -29,6 +30,7 @@ typedef struct _checkArea
 	SQLCHAR bigClass[LENGTH_BIGCLASS];
 	SQLCHAR subClass[LENGTH_SUBCLASS];
 	SQLCHAR countQue[LENGTH_COUNTQUESTION];
+	SQLCHAR contents[LENGTH_AREA_CONTENTS];
 } CheckArea;
 
 typedef struct _AreaQuestionJoin
@@ -174,4 +176,17 @@ public:
 	// USERS 직업 검색
 	void PrintUsersUsingJob(char * job);
 
+	// INSERT 메소드
+	void InsertArea();
+	void InsertQuestion();
+	void InsertUsers();
+	void InsertResponse();
+	void InsertDomain();
+
+	// DELETE 메소드
+	void DeleteArea();
+	void DeleteQuestion();
+	void DeleteUsers();
+	void DeleteResponse();
+	void DeleteDomain();
 };
