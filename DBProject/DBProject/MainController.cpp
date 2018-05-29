@@ -23,7 +23,7 @@ MainController::MainController()
 	{
 		menu->ShowMainMenu();
 		cin >> select;
-
+		while (cin.get() != '\n');
 		if (select < '0' || select > '6')
 		{
 			showOutOfIndex();
@@ -70,7 +70,7 @@ void MainController::selectMenuControl()
 	{
 		menu->ShowSelectMenu();
 		cin >> select;
-
+		while (cin.get() != '\n');
 		if (select < '0' || select > '5')
 		{
 			showOutOfIndex();
@@ -112,7 +112,7 @@ void MainController::selectAreaControl()
 	{
 		menu->ShowSelectAreaMenu();
 		cin >> select;
-
+		while (cin.get() != '\n');
 		if (select < '0' || select > '4')
 		{
 			showOutOfIndex();
@@ -199,7 +199,7 @@ void MainController::selectQuestionControl()
 	{
 		menu->ShowSelectQuestionMenu();
 		cin >> select;
-		cin.get();
+		while (cin.get() != '\n');
 		if (select < '0' || select > '2')
 		{
 			showOutOfIndex();
@@ -239,7 +239,7 @@ void MainController::selectResponseControl()
 	{
 		menu->ShowSelectResponseMenu();
 		cin >> select;
-		cin.get();
+		while (cin.get() != '\n');
 		if (select < '0' || select > '1')
 		{
 			showOutOfIndex();
@@ -273,7 +273,7 @@ void MainController::selectUsersControl()
 	{
 		menu->ShowSelectUsersMenu();
 		cin >> select;
-		cin.get();
+		while (cin.get() != '\n');
 		if (select < '0' || select > '3')
 		{
 			showOutOfIndex();
@@ -317,7 +317,7 @@ void MainController::selectDomainControl()
 	{
 		menu->ShowSelectDomainMenu();
 		cin >> select;
-		cin.get();
+		while (cin.get() != '\n');
 		if (select < '0' || select > '3')
 		{
 			showOutOfIndex();
@@ -363,7 +363,7 @@ void MainController::insertMenuControl()
 	{
 		menu->ShowInsertMenu();
 		cin >> select;
-		cin.get();
+		while (cin.get() != '\n');
 		if (select < '0' || select > '5')
 		{
 			showOutOfIndex();
@@ -407,7 +407,7 @@ void MainController::deleteMenuControl()
 	{
 		menu->ShowInsertMenu();
 		cin >> select;
-
+		while (cin.get() != '\n');
 		if (select < '0' || select > '5')
 		{
 			showOutOfIndex();
@@ -446,7 +446,7 @@ void MainController::updateMenuControl()
 	{
 		menu->ShowUpdateMenu();
 		cin >> select;
-
+		while (cin.get() != '\n');
 		if (select < '0' || select > '5')
 		{
 			showOutOfIndex();
@@ -485,7 +485,7 @@ void MainController::printMenuControl()
 	{
 		menu->ShowPrintMenu();
 		cin >> select;
-
+		while (cin.get() != '\n');
 		if (select < '0' || select > '5')
 		{
 			showOutOfIndex();

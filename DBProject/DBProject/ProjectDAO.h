@@ -137,6 +137,20 @@ private:
 
 	// Area 테이블의 질문 개수 속성을 초기화 하는 메소드
 	void InitializeAreaCount();
+	// 해당 분야가 존재하는지 반환
+	bool bcheckArea(char * bigClass, char * subClass);
+	// 해당 ID를 가진 유저가 존재하는지 반환
+	bool bcheckUser(char * ID, int domainNum);
+	// DOMAIN 테이블을 조회하여 번호를 입력받아서 반환
+	int checkDomain();
+	// QUESTION 테이블의 새로운 QUE_NUM 번호를 반환
+	int checkQuestionKey();
+	// RESPONSE 테이블의 새로운 RES_NUM 번호를 반환
+	int checkResponseKey();
+	// DOMAIN 테이블의 새로운 DOMAIN_NUM 번호를 반환
+	int checkDomainKey();
+	// 해당 DOMAIN_NUM을 가진 도메인지 존재하는지 반환
+	bool bcheckDomain(int domainNum);
 public:
 	ProjectDAO();
 	~ProjectDAO();
