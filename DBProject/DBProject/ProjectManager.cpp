@@ -19,8 +19,9 @@ ProjectManager * ProjectManager::GetInstance()
 
 ProjectManager::~ProjectManager()
 {
-	delete dao;
+	//delete dao;
 	delete menu;
+
 	instance = nullptr;
 }
 

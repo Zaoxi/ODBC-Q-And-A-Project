@@ -22,11 +22,6 @@ private :
 	void selectUsersControl();
 	void selectDomainControl();
 
-	void selectQuestionInArea();
-	void selectQueUsersInArea();
-	void selectResponseInArea();
-	void selectResUsersInArea();
-
 public :
 	// 멤버 변수를 초기화 하면서 메인메뉴선택 출력
 	MainController();

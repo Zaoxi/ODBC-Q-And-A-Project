@@ -151,19 +151,25 @@ private:
 	int checkDomainKey();
 	// 해당 DOMAIN_NUM을 가진 도메인지 존재하는지 반환
 	bool bcheckDomain(int domainNum);
+	// 날짜 형식이 맞는지 체크하는 메소드
+	bool bcheckDate(char * date);
+	// 이메일 형식이 맞는지 체크하는 메소드
+	bool bcheckEmail(char * email);
+	// 문자열 길이가 최소 3문자 이상인지 검사
+	bool bcheckString(char * string);
 public:
 	ProjectDAO();
 	~ProjectDAO();
 	bool GetbIsConnected();
 	void PrintAllArea();
 	// 선택된 분야의 질문을 출력, 2 Table Join
-	void PrintQuestionsInSeletedArea(char * bigClass, char * subClass);
+	void PrintQuestionsInSeletedArea();
 	// 선택된 분야의 유저 정보를 출력, 3 Table Join
-	void PrintUsersInSelectedArea(char * bigClass, char * subClass);
+	void PrintUsersInSelectedArea();
 	// 선택된 분야의 답변 정보 출력 , 3Table Join
-	void PrintAnswersInSelectedArea(char * bigClass, char * subClass);
+	void PrintAnswersInSelectedArea();
 	// 선택된 분야에 답변한 유저 정보 출력, 4 Table Join
-	void PrintResponseUsersInSelectedArea(char * bigClass, char * subClass);
+	void PrintResponseUsersInSelectedArea();
 
 	// SQL을 입력받아서 출력
 	void ExecuteSelectSQL();

@@ -122,16 +122,16 @@ void MainController::selectAreaControl()
 		switch (select)
 		{
 		case '1':
-			selectQuestionInArea();
+			dao->PrintQuestionsInSeletedArea();
 			break;
 		case '2':
-			selectQueUsersInArea();
+			dao->PrintUsersInSelectedArea();
 			break;
 		case '3':
-			selectResponseInArea();
+			dao->PrintAnswersInSelectedArea();
 			break;
 		case '4':
-			selectResUsersInArea();
+			dao->PrintResponseUsersInSelectedArea();
 			break;
 		case '0':
 			return;
@@ -140,50 +140,6 @@ void MainController::selectAreaControl()
 		}
 
 	}
-}
-
-void MainController::selectQuestionInArea()
-{
-	char bigClass[20], smallClass[20];
-	cout << "대분류 >> ";
-	cin >> bigClass;
-	cout << "소분류 >> ";
-	cin >> smallClass;
-
-	dao->PrintQuestionsInSeletedArea(bigClass, smallClass);
-}
-
-void MainController::selectQueUsersInArea()
-{
-	char bigClass[20], smallClass[20];
-	cout << "대분류 >> ";
-	cin >> bigClass;
-	cout << "소분류 >> ";
-	cin >> smallClass;
-
-	dao->PrintUsersInSelectedArea(bigClass, smallClass);
-}
-
-void MainController::selectResponseInArea()
-{
-	char bigClass[20], smallClass[20];
-	cout << "대분류 >> ";
-	cin >> bigClass;
-	cout << "소분류 >> ";
-	cin >> smallClass;
-
-	dao->PrintAnswersInSelectedArea(bigClass, smallClass);
-}
-
-void ::MainController::selectResUsersInArea()
-{
-	char bigClass[20], smallClass[20];
-	cout << "대분류 >> ";
-	cin >> bigClass;
-	cout << "소분류 >> ";
-	cin >> smallClass;
-
-	dao->PrintResponseUsersInSelectedArea(bigClass, smallClass);
 }
 
 #pragma endregion

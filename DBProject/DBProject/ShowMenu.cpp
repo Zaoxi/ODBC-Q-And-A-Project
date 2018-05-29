@@ -52,6 +52,7 @@ void ShowMenu::ShowInsertMenu()
 	cout << "3. RESPONSE 테이블에 삽입" << endl;
 	cout << "4. DOMAIN 테이블에 삽입" << endl;
 	cout << "5. USERS 테이블에 삽입" << endl;
+	cout << "0. 뒤로 가기" << endl;
 	showLine();
 	cout << " >> ";
 }
@@ -66,6 +67,7 @@ void ShowMenu::ShowDeleteMenu()
 	cout << "3. RESPONSE 테이블의 튜플 삭제" << endl;
 	cout << "4. DOMAIN 테이블의 튜플 삭제" << endl;
 	cout << "5. USERS 테이블의 튜플 삭제" << endl;
+	cout << "0. 뒤로 가기" << endl;
 	showLine();
 	cout << " >> ";
 }
@@ -80,6 +82,7 @@ void ShowMenu::ShowUpdateMenu()
 	cout << "3. RESPONSE 테이블의 튜플 수정" << endl;
 	cout << "4. DOMAIN 테이블의 튜플 수정" << endl;
 	cout << "5. USERS 테이블의 튜플 수정" << endl;
+	cout << "0. 뒤로 가기" << endl;
 	showLine();
 	cout << " >> ";
 }
@@ -94,6 +97,7 @@ void ShowMenu::ShowPrintMenu()
 	cout << "3. RESPONSE 테이블 출력" << endl;
 	cout << "4. DOMAIN 테이블 출력" << endl;
 	cout << "5. USERS 테이블 출력" << endl;
+	cout << "0. 뒤로 가기" << endl;
 	showLine();
 	cout << " >> ";
 }
