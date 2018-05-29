@@ -22,7 +22,11 @@ public :
 	void ShowSelectDomainMenu();
 	void ShowSelectUsersMenu();
 
-	// INSERT TABLE에 관한 메소드
-	
+	// DELETE TABLE에 관한 메소드
+	void ShowDeleteAreaMenu();
+	void ShowDeleteQuestionMenu();
+	void ShowDeleteResponseMenu();
+	void ShowDeleteDomainMenu();
+	void ShowDeleteUsersMenu();
 };
 

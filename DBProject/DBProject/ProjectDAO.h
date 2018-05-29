@@ -157,6 +157,10 @@ private:
 	bool bcheckEmail(char * email);
 	// 문자열 길이가 최소 3문자 이상인지 검사
 	bool bcheckString(char * string);
+	// 해당 질문번호가 존재하는지 반환
+	bool bcheckQuestionNum(int num);
+	// 해당 답변번호가 존재하는지 반환
+	bool bcheckResponseNum(int num);
 public:
 	ProjectDAO();
 	~ProjectDAO();
@@ -210,3 +214,15 @@ public:
 	void DeleteResponse();
 	void DeleteDomain();
 };
+
+/* 기본적인 바탕
+HSTMT hStmt;
+
+if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+{
+	sprintf((char*)query, "");
+	SQLExecDirect(hStmt, query, SQL_NTS);
+	SQLCloseCursor(hStmt);
+	SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+}
+*/

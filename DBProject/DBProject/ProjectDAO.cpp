@@ -1093,6 +1093,58 @@ void ProjectDAO::PrintUsersUsingJob(char * job)
 
 #pragma region CHECK 메소드
 
+bool ProjectDAO::bcheckResponseNum(int num)
+{
+	HSTMT hStmt;
+	bool isExist;
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "SELECT RES_NUM FROM RESPONSE WHERE RES_NUM = %d", num);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+
+		if (SQLFetch(hStmt) != SQL_NO_DATA)
+		{
+			isExist = true;
+		}
+		else
+		{
+			isExist = false;
+		}
+
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+
+	return isExist;
+}
+
+bool ProjectDAO::bcheckQuestionNum(int num)
+{
+	HSTMT hStmt;
+	bool isExist;
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "SELECT QUE_NUM FROM QUESTION WHERE QUE_NUM = %d", num);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+
+		if (SQLFetch(hStmt) != SQL_NO_DATA)
+		{
+			isExist = true;
+		}
+		else
+		{
+			isExist = false;
+		}
+
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+
+	return isExist;
+}
+
 bool ProjectDAO::bcheckArea(char * bigClass, char * subClass)
 {
 	HSTMT hStmt;
@@ -1947,3 +1999,216 @@ void ProjectDAO::InsertUsers()
 
 #pragma endregion
 
+#pragma region DELETE 관련 작업
+
+void ProjectDAO::DeleteArea()
+{
+	HSTMT hStmt;
+	char bigClass[LENGTH_BIGCLASS];
+	char subClass[LENGTH_SUBCLASS];
+
+	while (true)
+	{
+		cout << "대분류 >> ";
+		cin.getline(bigClass, LENGTH_BIGCLASS);
+		cout << "소분류 >> ";
+		cin.getline(subClass, LENGTH_SUBCLASS);
+
+		if (bcheckArea(bigClass, subClass))
+		{
+			break;
+		}
+		else
+		{
+			cout << "해당 분야는 존재하지 않습니다." << endl;
+		}
+	}
+
+	// 분야 데이터를 가지고 RESPOND TABLE을 삭제
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "DELETE FROM AREA WHERE AREA_BIG_CLASS = '%s' AND AREA_SUB_CLASS = '%s'", bigClass, subClass);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+void ProjectDAO::DeleteQuestion()
+{
+	HSTMT hStmt;
+	int queNum;
+	int tempNum;
+	list<int> resNumList;
+
+	while (true)
+	{
+		cout << "질문 번호 >> ";
+		cin >> queNum;
+		while (cin.get() != '\n');
+
+		if (bcheckQuestionNum(queNum))
+		{
+			break;
+		}
+		else
+		{
+			cout << "해당 질문이 존재하지 않습니다." << endl;
+		}
+	}
+
+	// 해당 질문의 답변 데이터 삭제
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "SELECT * RES_NUM FROM RESPOND WHERE QUE_NUM = %d", queNum);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+
+		SQLBindCol(hStmt, 1, SQL_C_SLONG, &tempNum, LENGTH_QUENUM, NULL);
+
+		while (SQLFetch(hStmt) != SQL_NO_DATA)
+		{
+			resNumList.push_back(tempNum);
+		}
+
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+
+	list<int>::iterator resIter = resNumList.begin();
+	while (resIter != resNumList.end())
+	{
+		if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+		{
+			sprintf((char*)query, "DELETE FROM RESPONSE WHERE RES_NUM = %d", *resIter);
+			SQLExecDirect(hStmt, query, SQL_NTS);
+			SQLCloseCursor(hStmt);
+			SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+		}
+		resIter++;
+	}
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "DELETE FROM QUESTION WHERE QUE_NUM = %d", queNum);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+void ProjectDAO::DeleteResponse()
+{
+	HSTMT hStmt;
+	int resNum;
+
+	while (true)
+	{
+		cout << "답변 번호 >> ";
+		cin >> resNum;
+		while (cin.get() != '\n');
+
+		if (bcheckResponseNum(resNum))
+		{
+			break;
+		}
+		else
+		{
+			cout << "해당 답변이 존재하지 않습니다." << endl;
+		}
+	}
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "DELETE FROM RESPONSE WHERE RES_NUM = %d", resNum);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+void ProjectDAO::DeleteDomain()
+{
+	HSTMT hStmt;
+	int domainNum;
+
+	while (true)
+	{
+		cout << "도메인 번호 >> ";
+		cin >> domainNum;
+		while (cin.get() != '\n');
+
+		if (bcheckDomain(domainNum))
+		{
+			break;
+		}
+		else
+		{
+			cout << "해당 도메인이 존재하지 않습니다." << endl;
+		}
+	}
+	// 도메인에 존재하는 모든 유저정보 삭제
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "DELETE FROM USERS WHERE USER_DOMAIN_NUM = %d", domainNum);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+
+	// 도메인 삭제
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "DELETE FROM DOMAIN WHERE DOMAIN_NUM = %d", domainNum);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+void ProjectDAO::DeleteUsers()
+{
+	HSTMT hStmt;
+	int domainNum;
+	char ID[LENGTH_ID];
+
+	while (true)
+	{
+		cout << "도메인 번호 >> ";
+		cin >> domainNum;
+		while (cin.get() != '\n');
+
+		if (bcheckDomain(domainNum))
+		{
+			break;
+		}
+		else
+		{
+			cout << "해당 도메인이 존재하지 않습니다." << endl;
+		}
+	}
+
+	while (true)
+	{
+		cout << "ID >> ";
+		cin.getline(ID, LENGTH_ID);
+
+		if (bcheckUser(ID, domainNum))
+		{
+			break;
+		}
+		else
+		{
+			cout << "해당 유저가 존재하지 않습니다." << endl;
+		}
+	}
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "DELETE FROM USERS WHERE USER_DOMAIN_NUM = %d AND USER_ID = '%s'", domainNum, ID);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+#pragma endregion

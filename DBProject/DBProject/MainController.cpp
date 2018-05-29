@@ -373,14 +373,159 @@ void MainController::deleteMenuControl()
 		switch (select)
 		{
 		case '1':
+			deleteAreaControl();
 			return;
 		case '2':
+			deleteQuestionControl();
 			return;
 		case '3':
+			deleteResponseControl();
 			return;
 		case '4':
+			deleteDomainControl();
 			return;
 		case '5':
+			deleteUsersControl();
+			return;
+		case '0':
+			return;
+		default:
+			return;
+		}
+	}
+}
+
+void MainController::deleteAreaControl()
+{
+	char select;
+	while (true)
+	{
+		menu->ShowDeleteAreaMenu();
+		cin >> select;
+		while (cin.get() != '\n');
+
+		if (select < '0' || select > '1')
+		{
+			showOutOfIndex();
+			continue;
+		}
+
+		switch (select)
+		{
+		case '1':
+			dao->DeleteArea();
+			return;
+		case '0':
+			return;
+		default:
+			return;
+		}
+	}
+}
+
+void MainController::deleteQuestionControl()
+{
+	char select;
+	while (true)
+	{
+		menu->ShowDeleteQuestionMenu();
+		cin >> select;
+		while (cin.get() != '\n');
+
+		if (select < '0' || select > '1')
+		{
+			showOutOfIndex();
+			continue;
+		}
+
+		switch (select)
+		{
+		case '1':
+			dao->DeleteQuestion();
+			return;
+		case '0':
+			return;
+		default:
+			return;
+		}
+	}
+}
+
+void MainController::deleteResponseControl()
+{
+	char select;
+	while (true)
+	{
+		menu->ShowDeleteResponseMenu();
+		cin >> select;
+		while (cin.get() != '\n');
+
+		if (select < '0' || select > '1')
+		{
+			showOutOfIndex();
+			continue;
+		}
+
+		switch (select)
+		{
+		case '1':
+			dao->DeleteResponse();
+			return;
+		case '0':
+			return;
+		default:
+			return;
+		}
+	}
+}
+
+void MainController::deleteUsersControl()
+{
+	char select;
+	while (true)
+	{
+		menu->ShowDeleteUsersMenu();
+		cin >> select;
+		while (cin.get() != '\n');
+
+		if (select < '0' || select > '1')
+		{
+			showOutOfIndex();
+			continue;
+		}
+
+		switch (select)
+		{
+		case '1':
+			dao->DeleteUsers();
+			return;
+		case '0':
+			return;
+		default:
+			return;
+		}
+	}
+}
+
+void MainController::deleteDomainControl()
+{
+	char select;
+	while (true)
+	{
+		menu->ShowDeleteDomainMenu();
+		cin >> select;
+		while (cin.get() != '\n');
+
+		if (select < '0' || select > '1')
+		{
+			showOutOfIndex();
+			continue;
+		}
+
+		switch (select)
+		{
+		case '1':
+			dao->DeleteDomain();
 			return;
 		case '0':
 			return;

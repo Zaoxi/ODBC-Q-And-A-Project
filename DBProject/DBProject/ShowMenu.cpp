@@ -8,6 +8,8 @@ void ShowMenu::showLine()
 	cout << "-------------------------------------------------" << endl;
 }
 
+#pragma region 기본 기능에 관한 메뉴
+
 void ShowMenu::ShowMainMenu()
 {
 	showLine();
@@ -72,6 +74,8 @@ void ShowMenu::ShowDeleteMenu()
 	cout << " >> ";
 }
 
+
+
 // 5
 void ShowMenu::ShowUpdateMenu()
 {
@@ -101,6 +105,8 @@ void ShowMenu::ShowPrintMenu()
 	showLine();
 	cout << " >> ";
 }
+
+#pragma endregion
 
 #pragma region SELECT TABLE에 관한 메뉴
 // 2-1
@@ -165,6 +171,65 @@ void ShowMenu::ShowSelectUsersMenu()
 	showLine();
 	cout << " >> ";
 }
+#pragma endregion
+
+#pragma region DELETE TABLE에 관한 메뉴
+
+void ShowMenu::ShowDeleteAreaMenu()
+{
+	cout << "<DELETE AREA 메뉴>" << endl;
+	cout << "- 삭제시 해당 분야에 속한 모든 질문들의 분야는 NULL이 됩니다." << endl;
+	showLine();
+	cout << "1. 대분류, 소분류를 입력하여 삭제" << endl;
+	cout << "0. 뒤로 가기" << endl;
+	showLine();
+	cout << " >> ";
+}
+
+void ShowMenu::ShowDeleteQuestionMenu()
+{
+	cout << "<DELETE QUESTION 메뉴>" << endl;
+	cout << "- 삭제시 해당 질문에 속한 모든 답변들은 삭제됩니다." << endl;
+	showLine();
+	cout << "1. 질문 번호를 이용하여 삭제" << endl;
+	cout << "0. 뒤로 가기" << endl;
+	showLine();
+	cout << " >> ";
+}
+
+void ShowMenu::ShowDeleteResponseMenu()
+{
+	cout << "<DELETE RESPONSE 메뉴>" << endl;
+	showLine();
+	cout << "1. 답변 번호를 이용하여 삭제" << endl;
+	cout << "0. 뒤로 가기" << endl;
+	showLine();
+	cout << " >> ";
+}
+
+void ShowMenu::ShowDeleteDomainMenu()
+{
+	cout << "<DELETE DOMAIN 메뉴>" << endl;
+	cout << "- 삭제시 해당 도메인에 속한 모든 유저들이 삭제됩니다." << endl;
+	cout << "- 삭제되는 유저들이 작성한 모든 질문과 답변 데이터의 유저정보는 NULL이 됩니다." << endl;
+	showLine();
+	cout << "1. 도메인 번호를 이용하여 삭제" << endl;
+	cout << "0. 뒤로 가기" << endl;
+	showLine();
+	cout << " >> ";
+}
+
+void ShowMenu::ShowDeleteUsersMenu()
+{
+	cout << "<DELETE USERS 메뉴>" << endl;
+	cout << "- 삭제되는 유저들이 작성한 모든 질문과 답변 데이터의 유저정보는 NULL이 됩니다." << endl;
+	showLine();
+	cout << "1. 도메인 번호와 ID를 이용하여 삭제" << endl;
+	cout << "0. 뒤로 가기" << endl;
+	showLine();
+	cout << " >> ";
+}
+
 #pragma endregion
 
 void ShowMenu::ShowSchema()
