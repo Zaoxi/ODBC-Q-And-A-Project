@@ -177,6 +177,7 @@ void ShowMenu::ShowSelectUsersMenu()
 
 void ShowMenu::ShowDeleteAreaMenu()
 {
+	showLine();
 	cout << "<DELETE AREA 메뉴>" << endl;
 	cout << "- 삭제시 해당 분야에 속한 모든 질문들의 분야는 NULL이 됩니다." << endl;
 	showLine();
@@ -188,6 +189,7 @@ void ShowMenu::ShowDeleteAreaMenu()
 
 void ShowMenu::ShowDeleteQuestionMenu()
 {
+	showLine();
 	cout << "<DELETE QUESTION 메뉴>" << endl;
 	cout << "- 삭제시 해당 질문에 속한 모든 답변들은 삭제됩니다." << endl;
 	showLine();
@@ -199,8 +201,8 @@ void ShowMenu::ShowDeleteQuestionMenu()
 
 void ShowMenu::ShowDeleteResponseMenu()
 {
-	cout << "<DELETE RESPONSE 메뉴>" << endl;
 	showLine();
+	cout << "<DELETE RESPONSE 메뉴>" << endl;
 	cout << "1. 답변 번호를 이용하여 삭제" << endl;
 	cout << "0. 뒤로 가기" << endl;
 	showLine();
@@ -209,6 +211,7 @@ void ShowMenu::ShowDeleteResponseMenu()
 
 void ShowMenu::ShowDeleteDomainMenu()
 {
+	showLine();
 	cout << "<DELETE DOMAIN 메뉴>" << endl;
 	cout << "- 삭제시 해당 도메인에 속한 모든 유저들이 삭제됩니다." << endl;
 	cout << "- 삭제되는 유저들이 작성한 모든 질문과 답변 데이터의 유저정보는 NULL이 됩니다." << endl;
@@ -221,10 +224,73 @@ void ShowMenu::ShowDeleteDomainMenu()
 
 void ShowMenu::ShowDeleteUsersMenu()
 {
+	showLine();
 	cout << "<DELETE USERS 메뉴>" << endl;
 	cout << "- 삭제되는 유저들이 작성한 모든 질문과 답변 데이터의 유저정보는 NULL이 됩니다." << endl;
 	showLine();
 	cout << "1. 도메인 번호와 ID를 이용하여 삭제" << endl;
+	cout << "0. 뒤로 가기" << endl;
+	showLine();
+	cout << " >> ";
+}
+
+#pragma endregion
+
+#pragma region UPDATE TABLE에 관한 메뉴
+
+void ShowMenu::ShowUpdateAreaMenu()
+{
+	showLine();
+	cout << "<UPDATE AREA 메뉴>" << endl;
+	cout << "- AREA 변경시, 해당 AREA에 속한 모든 질문들의 분야도 변경됩니다." << endl;
+	showLine();
+	cout << "1. 대분야, 소분야 변경" << endl;
+	cout << "0. 뒤로 가기" << endl;
+	showLine();
+	cout << " >> ";
+}
+
+void ShowMenu::ShowUpdateQuestionMenu()
+{
+	showLine();
+	cout << "<UPDATE QUESTION 메뉴>" << endl;
+	cout << "1. 질문자 변경" << endl;
+	cout << "2. 제목 변경" << endl;
+	cout << "3. 내용 변경" << endl;
+	cout << "0. 뒤로 가기" << endl;
+	showLine();
+	cout << " >> ";
+}
+
+void ShowMenu::ShowUpdateResponseMenu()
+{
+	showLine();
+	cout << "<UPDATE RESPONSE 메뉴>" << endl;
+	cout << "1. 답변자 변경" << endl;
+	cout << "2. 내용 변경" << endl;
+	cout << "0. 뒤로 가기" << endl;
+	showLine();
+	cout << " >> ";
+}
+
+void ShowMenu::ShowUpdateDomainMenu()
+{
+	showLine();
+	cout << "<UPDATE DOMAIN 메뉴>" << endl;
+	cout << "1. 도메인 이름 변경" << endl;
+	cout << "2. 도메인 회사 변경" << endl;
+	cout << "3. 상위 도메인 변경" << endl;
+	cout << "0. 뒤로 가기" << endl;
+	showLine();
+	cout << " >> ";
+}
+
+void ShowMenu::ShowUpdateUsersMenu()
+{
+	showLine();
+	cout << "<UPDATE USERS 메뉴>" << endl;
+	cout << "1. 유저 이메일 변경" << endl;
+	cout << "2. 유저 직업 변경" << endl;
 	cout << "0. 뒤로 가기" << endl;
 	showLine();
 	cout << " >> ";

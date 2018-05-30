@@ -557,16 +557,169 @@ void MainController::updateMenuControl()
 		switch (select)
 		{
 		case '1':
+			updateAreaControl();
 			return;
 		case '2':
+			updateQuestionControl();
 			return;
 		case '3':
+			updateResponseControl();
 			return;
 		case '4':
+			updateDomainControl();
 			return;
 		case '5':
+			updateUsersControl();
 			return;
 		case '0':
+			return;
+		default:
+			return;
+		}
+	}
+}
+
+void MainController::updateAreaControl()
+{
+	char select;
+
+	while (true)
+	{
+		menu->ShowUpdateAreaMenu();
+		cin >> select;
+		while (cin.get() != '\n');
+		if (select < '0' || select > '1')
+		{
+			showOutOfIndex();
+			continue;
+		}
+
+		switch (select)
+		{
+		case 1:
+			return;
+		case 0:
+			return;
+		default:
+			return;
+		}
+	}
+}
+
+void MainController::updateQuestionControl()
+{
+	char select;
+
+	while (true)
+	{
+		menu->ShowUpdateQuestionMenu();
+		cin >> select;
+		while (cin.get() != '\n');
+		if (select < '0' || select > '3')
+		{
+			showOutOfIndex();
+			continue;
+		}
+
+		switch (select)
+		{
+		case 1:
+			return;
+		case 2:
+			return;
+		case 3:
+			return;
+		case 0:
+			return;
+		default:
+			return;
+		}
+	}
+}
+
+void MainController::updateResponseControl()
+{
+	char select;
+
+	while (true)
+	{
+		menu->ShowUpdateResponseMenu();
+		cin >> select;
+		while (cin.get() != '\n');
+		if (select < '0' || select > '2')
+		{
+			showOutOfIndex();
+			continue;
+		}
+
+		switch (select)
+		{
+		case 1:
+			return;
+		case 2:
+			return;
+		case 0:
+			return;
+		default:
+			return;
+		}
+	}
+}
+
+void MainController::updateDomainControl()
+{
+	char select;
+
+	while (true)
+	{
+		menu->ShowUpdateDomainMenu();
+		cin >> select;
+		while (cin.get() != '\n');
+		if (select < '0' || select > '3')
+		{
+			showOutOfIndex();
+			continue;
+		}
+
+		switch (select)
+		{
+		case 1:
+			
+			return;
+		case 2:
+			return;
+		case 3:
+			return;
+		case 0:
+			return;
+		default:
+			return;
+		}
+	}
+}
+
+void MainController::updateUsersControl()
+{
+	char select;
+
+	while (true)
+	{
+		menu->ShowUpdateUsersMenu();
+		cin >> select;
+		while (cin.get() != '\n');
+		if (select < '0' || select > '2')
+		{
+			showOutOfIndex();
+			continue;
+		}
+
+		switch (select)
+		{
+		case 1:
+			return;
+		case 2:
+			return;
+		case 0:
 			return;
 		default:
 			return;

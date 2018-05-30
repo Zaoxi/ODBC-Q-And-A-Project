@@ -28,6 +28,13 @@ private :
 	void deleteUsersControl();
 	void deleteDomainControl();
 
+	void updateAreaControl();
+	void updateQuestionControl();
+	void updateResponseControl();
+	void updateDomainControl();
+	void updateUsersControl();
+	
+
 public :
 	// 멤버 변수를 초기화 하면서 메인메뉴선택 출력
 	MainController();

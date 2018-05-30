@@ -2094,6 +2094,8 @@ void ProjectDAO::DeleteQuestion()
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	}
+
+	InitializeAreaCount();
 }
 
 void ProjectDAO::DeleteResponse()
@@ -2205,6 +2207,560 @@ void ProjectDAO::DeleteUsers()
 	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 	{
 		sprintf((char*)query, "DELETE FROM USERS WHERE USER_DOMAIN_NUM = %d AND USER_ID = '%s'", domainNum, ID);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+#pragma endregion
+
+#pragma region UPDATE 관련 작업
+
+void ProjectDAO::UpdateArea()
+{
+	HSTMT hStmt;
+	char srcBigClass[LENGTH_BIGCLASS];
+	char srcSubClass[LENGTH_SUBCLASS];
+	char dstBigClass[LENGTH_BIGCLASS];
+	char dstSubClass[LENGTH_SUBCLASS];
+	char dstAreaContents[LENGTH_AREA_CONTENTS];
+
+	while (true)
+	{
+		cout << "대분류 >> ";
+		cin.getline(srcBigClass, LENGTH_BIGCLASS);
+		cout << "소분류 >> ";
+		cin.getline(srcSubClass, LENGTH_SUBCLASS);
+		
+		if (bcheckArea(srcBigClass, srcSubClass))
+		{
+			break;
+		}
+		else
+		{
+			cout << "해당 분야가 존재하지 않습니다." << endl;
+		}
+	}
+	cout << srcBigClass << " - " << srcSubClass << "을(를) 다음으로 변경" << endl;
+	cout << "대분류 >> ";
+	cin.getline(dstBigClass, LENGTH_BIGCLASS);
+	cout << "소분류 >> ";
+	cin.getline(dstSubClass, LENGTH_SUBCLASS);
+	cout << "변경할 분류 내용 >> ";
+	cin.getline(dstAreaContents, LENGTH_AREA_CONTENTS);
+
+	// 새 AREA 삽입
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "INSERT INTO AREA VALUES('%s', '%s', '%s', 0, NULL, NULL)", dstBigClass, dstSubClass, dstAreaContents);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+	// QUESTION AREA변경
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "UPDATE QUESTION SET QUE_BIG_CLASS = '%s', QUE_SUB_CLASS = '%s' WHERE QUE_BIG_CLASS = '%s' AND QUE_SUB_CLASS = '%s'", dstBigClass, dstSubClass, srcBigClass, srcSubClass);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+	// 기존 AREA 삭제
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "DELETE FROM AREA WHERE AREA_BIG_CLASS = '%s' AND AREA_SUB_CLASS = '%s'", srcBigClass, srcSubClass);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+
+	InitializeAreaCount();
+}
+
+void ProjectDAO::UpdateQuestionID()
+{
+	HSTMT hStmt;
+	int queNum;
+	int domainNum;
+	char ID[LENGTH_ID];
+	char select;
+
+	while (true)
+	{
+		cout << "질문 번호 >> ";
+		cin >> queNum;
+		while (cin.get() != '\n');
+
+		if (bcheckQuestionNum(queNum))
+		{
+			break;
+		}
+		else
+		{
+			cout << "해당 질문이 존재하지 않습니다." << endl;
+		}
+	}
+	// 해당 질문의 도메인번호를 가져옴
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "SELECT QUE_DOMAIN_NUM FROM QUESTION WHERE QUE_NUM = %d", queNum);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLBindCol(hStmt, 1, SQL_C_SLONG, &domainNum, LENGTH_DOMAIN_NUM, NULL);
+		SQLFetch(hStmt);
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+
+	while (true)
+	{
+		cout << "ID를 비공개로 바꾸시겠습니까?(Y/N) >> ";
+		cin >> select;
+		while (cin.get() != '\n');
+
+		if (select == 'Y' || select == 'y')
+		{
+			if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+			{
+				sprintf((char*)query, "UPDATE QUESTION SET QUE_ID = NULL WHERE QUE_NUM = %d", queNum);
+				SQLExecDirect(hStmt, query, SQL_NTS);
+				SQLCloseCursor(hStmt);
+				SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+			}
+			return;
+		}
+		else if (select == 'N' || select == 'n')
+		{
+			while (true)
+			{
+				cout << "ID >> ";
+				cin.getline(ID, LENGTH_ID);
+				if (bcheckUser(ID, domainNum))
+				{
+					break;
+				}
+				else
+				{
+					cout << "입력된 유저가 존재하지 않습니다." << endl;
+				}
+			}
+
+			if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+			{
+				sprintf((char*)query, "UPDATE QUESTION SET QUE_ID = '%s' WHERE QUE_NUM = %d", queNum);
+				SQLExecDirect(hStmt, query, SQL_NTS);
+				SQLCloseCursor(hStmt);
+				SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+			}
+			return;
+		}
+		else
+		{
+			cout << "잘못된 입력입니다." << endl;
+		}
+	}
+}
+
+void ProjectDAO::UpdateQuestionTitle()
+{
+	HSTMT hStmt;
+	int queNum;
+	char title[LENGTH_TITLE];
+
+	while (true)
+	{
+		cout << "질문 번호 >> ";
+		cin >> queNum;
+		while (cin.get() != '\n');
+
+		if (bcheckQuestionNum(queNum))
+		{
+			break;
+		}
+		else
+		{
+			cout << "해당 질문이 존재하지 않습니다." << endl;
+		}
+	}
+
+	while (true)
+	{
+		cout << "TITLE >> ";
+		cin.getline(title, LENGTH_TITLE);
+
+		if (bcheckString(title))
+		{
+			break;
+		}
+		else
+		{
+			cout << "제목은 최소 3글자 이상이어야 합니다." << endl;
+		}
+	}
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "UPDATE QUESTION SET QUE_TITLE = '%s' WHERE QUE_NUM = %d", title, queNum);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+void ProjectDAO::UpdateQuestionContents()
+{
+	HSTMT hStmt;
+	int queNum;
+	char contents[LENGTH_CONTENTS];
+
+	while (true)
+	{
+		cout << "질문 번호 >> ";
+		cin >> queNum;
+		while (cin.get() != '\n');
+
+		if (bcheckQuestionNum(queNum))
+		{
+			break;
+		}
+		else
+		{
+			cout << "해당 질문이 존재하지 않습니다." << endl;
+		}
+	}
+
+	while (true)
+	{
+		cout << "CONTENTS >> ";
+		cin.getline(contents, LENGTH_CONTENTS);
+
+		if (bcheckString(contents))
+		{
+			break;
+		}
+		else
+		{
+			cout << "내용은 최소 3글자 이상이어야 합니다." << endl;
+		}
+	}
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "UPDATE QUESTION SET QUE_CONTENTS = '%s' WHERE QUE_NUM = %d", contents, queNum);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+void ProjectDAO::UpdateResponseID()
+{
+	HSTMT hStmt;
+	int resNum;
+	int domainNum;
+	char ID[LENGTH_ID];
+	char select;
+
+	while (true)
+	{
+		cout << "답변 번호 >> ";
+		cin >> resNum;
+		while (cin.get() != '\n');
+
+		if (bcheckQuestionNum(resNum))
+		{
+			break;
+		}
+		else
+		{
+			cout << "해당 답변이 존재하지 않습니다." << endl;
+		}
+	}
+	// 해당 답변의 도메인번호를 가져옴
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "SELECT RES_DOMAIN_NUM FROM RESPONSE WHERE RES_NUM = %d", resNum);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLBindCol(hStmt, 1, SQL_C_SLONG, &domainNum, LENGTH_DOMAIN_NUM, NULL);
+		SQLFetch(hStmt);
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+
+	while (true)
+	{
+		cout << "ID를 비공개로 바꾸시겠습니까?(Y/N) >> ";
+		cin >> select;
+		while (cin.get() != '\n');
+
+		if (select == 'Y' || select == 'y')
+		{
+			if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+			{
+				sprintf((char*)query, "UPDATE RESPONSE SET RES_ID = NULL WHERE RES_NUM = %d", resNum);
+				SQLExecDirect(hStmt, query, SQL_NTS);
+				SQLCloseCursor(hStmt);
+				SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+			}
+			return;
+		}
+		else if (select == 'N' || select == 'n')
+		{
+			while (true)
+			{
+				cout << "ID >> ";
+				cin.getline(ID, LENGTH_ID);
+				if (bcheckUser(ID, domainNum))
+				{
+					break;
+				}
+				else
+				{
+					cout << "입력된 유저가 존재하지 않습니다." << endl;
+				}
+			}
+
+			if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+			{
+				sprintf((char*)query, "UPDATE RESPONSE SET RES_ID = '%s' WHERE RES_NUM = %d", resNum);
+				SQLExecDirect(hStmt, query, SQL_NTS);
+				SQLCloseCursor(hStmt);
+				SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+			}
+			return;
+		}
+		else
+		{
+			cout << "잘못된 입력입니다." << endl;
+		}
+	}
+}
+
+void ProjectDAO::UpdateResponseContents()
+{
+	HSTMT hStmt;
+	int resNum;
+	char contents[LENGTH_CONTENTS];
+
+	while (true)
+	{
+		cout << "답변 번호 >> ";
+		cin >> resNum;
+		while (cin.get() != '\n');
+
+		if (bcheckResponseNum(resNum))
+		{
+			break;
+		}
+		else
+		{
+			cout << "해당 답변이 존재하지 않습니다." << endl;
+		}
+	}
+
+	while (true)
+	{
+		cout << "CONTENTS >> ";
+		cin.getline(contents, LENGTH_CONTENTS);
+
+		if (bcheckString(contents))
+		{
+			break;
+		}
+		else
+		{
+			cout << "내용은 최소 3글자 이상이어야 합니다." << endl;
+		}
+	}
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "UPDATE RESPONSE SET RES_CONTENTS = '%s' WHERE RES_NUM = %d", contents, resNum);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+void ProjectDAO::UpdateDomainName()
+{
+	HSTMT hStmt;
+	int domainNum;
+	char domainName[LENGTH_DOMAIN_NAME];
+
+	domainNum = checkDomain();
+	cout << "도메인 이름 >> ";
+	cin.getline(domainName, LENGTH_DOMAIN_NAME);
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "UPDATE DOMAIN SET DOMAIN_NAME = '%s' WHERE DOMAIN_NUM = %d", domainName, domainNum);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+void ProjectDAO::UpdateDomainCompany()
+{
+	HSTMT hStmt;
+	int domainNum;
+	char domainCompany[LENGTH_DOMAIN_COMPANY];
+
+	domainNum = checkDomain();
+	cout << "도메인 회사 >> ";
+	cin.getline(domainCompany, LENGTH_DOMAIN_COMPANY);
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "UPDATE DOMAIN SET DOMAIN_COMPANY = '%s' WHERE DOMAIN_NUM = %d", domainCompany, domainNum);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+void ProjectDAO::UpdateDomainParentDomain()
+{
+	HSTMT hStmt;
+	int domainNum;
+	char select;
+
+	domainNum = checkDomain();
+
+	while (true)
+	{
+		cout << "수정하는 사이트가 타 사이트의 하위 사이트 입니까?(Y/N) >> ";
+		cin >> select;
+		while (cin.get() != '\n');
+
+		if (select == 'Y' || select == 'y' || select == 'N' || select == 'n')
+		{
+			break;
+		}
+		else
+		{
+			cout << "잘못된 입력입니다." << endl << endl;
+		}
+	}
+
+	if (select == 'Y' || select == 'y')
+	{
+		while (true)
+		{
+			cout << "상위 사이트 번호 >> ";
+			cin >> select;
+			while (cin.get() != '\n');
+
+			if (bcheckDomain(select))
+			{
+				break;
+			}
+			else
+			{
+				cout << "해당하는 도메인이 존재하지 않습니다." << endl;
+			}
+		}
+
+		if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+		{
+			sprintf((char*)query, "UPDATE DOMAIN SET DOMAIN_PARENT = %d WHERE DOMAIN_NUM = %d", select, domainNum);
+			SQLExecDirect(hStmt, query, SQL_NTS);
+
+			SQLCloseCursor(hStmt);
+			SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+		}
+	}
+	else
+	{
+		if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+		{
+			sprintf((char*)query, "UPDATE DOMAIN SET DOMAIN_PARENT = NULL WHERE DOMAIN_NUM = %d", domainNum);
+			SQLExecDirect(hStmt, query, SQL_NTS);
+
+			SQLCloseCursor(hStmt);
+			SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+		}
+	}
+}
+
+void ProjectDAO::UpdateUsersEmail()
+{
+	HSTMT hStmt;
+	int domainNum;
+	char ID[LENGTH_ID];
+	char email[LENGTH_EMAIL];
+
+	domainNum = checkDomain();
+
+	while (true)
+	{
+		cout << "ID >> ";
+		cin.getline(ID, LENGTH_ID);
+
+		if (bcheckUser(ID, domainNum))
+		{
+			break;
+		}
+		else
+		{
+			cout << "해당하는 유저가 존재하지 않습니다." << endl;
+		}
+	}
+
+	while (true)
+	{
+		cout << "Email >> ";
+		cin.getline(email, LENGTH_EMAIL);
+
+		if (bcheckEmail(email))
+		{
+			break;
+		}
+		else
+		{
+			cout << "이메일 형식이 아닙니다." << endl;
+		}
+	}
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "UPDATE USERS SET USER_EMAIL = '%s' WHERE USER_DOMAIN_NUM = %d AND USER_ID = '%s'", email, domainNum, ID);
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+void ProjectDAO::UpdateUsersJob()
+{
+	HSTMT hStmt;
+	int domainNum;
+	char ID[LENGTH_ID];
+	char job[LENGTH_JOB];
+
+	domainNum = checkDomain();
+
+	while (true)
+	{
+		cout << "ID >> ";
+		cin.getline(ID, LENGTH_ID);
+
+		if (bcheckUser(ID, domainNum))
+		{
+			break;
+		}
+		else
+		{
+			cout << "해당하는 유저가 존재하지 않습니다." << endl;
+		}
+	}
+	cout << "직업 >> ";
+	cin.getline(job, LENGTH_JOB);
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "UPDATE USERS SET USER_JOB = '%s' WHERE USER_DOMAIN_NUM = %d AND USER_ID = '%s'", job, domainNum, ID);
 		SQLExecDirect(hStmt, query, SQL_NTS);
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);

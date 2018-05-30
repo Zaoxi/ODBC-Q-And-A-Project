@@ -28,5 +28,12 @@ public :
 	void ShowDeleteResponseMenu();
 	void ShowDeleteDomainMenu();
 	void ShowDeleteUsersMenu();
+
+	// UPDATE TABLE에 관한 메소드
+	void ShowUpdateAreaMenu();
+	void ShowUpdateQuestionMenu();
+	void ShowUpdateResponseMenu();
+	void ShowUpdateDomainMenu();
+	void ShowUpdateUsersMenu();
 };
 

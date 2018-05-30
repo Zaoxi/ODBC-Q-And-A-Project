@@ -213,6 +213,20 @@ public:
 	void DeleteUsers();
 	void DeleteResponse();
 	void DeleteDomain();
+
+	// UPDATE 메소드
+	void UpdateArea();
+	void UpdateQuestionID();
+	void UpdateQuestionTitle();
+	void UpdateQuestionContents();
+	void UpdateResponseID();
+	void UpdateResponseContents();
+	void UpdateDomainName();
+	void UpdateDomainCompany();
+	void UpdateDomainParentDomain();
+	void UpdateUsersEmail();
+	void UpdateUsersJob();
+
 };
 
 /* 기본적인 바탕
