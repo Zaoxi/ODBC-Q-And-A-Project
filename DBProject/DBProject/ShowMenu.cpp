@@ -213,8 +213,9 @@ void ShowMenu::ShowDeleteDomainMenu()
 {
 	showLine();
 	cout << "<DELETE DOMAIN 메뉴>" << endl;
+	cout << "***주의***" << endl;
 	cout << "- 삭제시 해당 도메인에 속한 모든 유저들이 삭제됩니다." << endl;
-	cout << "- 삭제되는 유저들이 작성한 모든 질문과 답변 데이터의 유저정보는 NULL이 됩니다." << endl;
+	cout << "- 삭제되는 유저들이 작성한 모든 질문과 답변 데이터도 삭제됩니다." << endl;
 	showLine();
 	cout << "1. 도메인 번호를 이용하여 삭제" << endl;
 	cout << "0. 뒤로 가기" << endl;

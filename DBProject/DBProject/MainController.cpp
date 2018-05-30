@@ -205,6 +205,7 @@ void MainController::selectResponseControl()
 		switch (select)
 		{
 		case '1':
+			cout << "CONTENTS >> ";
 			cin.getline(searchData, 100);
 			dao->PrintResponseUsingContents(searchData);
 			break;
@@ -361,7 +362,7 @@ void MainController::deleteMenuControl()
 
 	while (true)
 	{
-		menu->ShowInsertMenu();
+		menu->ShowDeleteMenu();
 		cin >> select;
 		while (cin.get() != '\n');
 		if (select < '0' || select > '5')
@@ -596,9 +597,10 @@ void MainController::updateAreaControl()
 
 		switch (select)
 		{
-		case 1:
+		case '1':
+			dao->UpdateArea();
 			return;
-		case 0:
+		case '0':
 			return;
 		default:
 			return;
@@ -623,13 +625,16 @@ void MainController::updateQuestionControl()
 
 		switch (select)
 		{
-		case 1:
+		case '1':
+			dao->UpdateQuestionID();
 			return;
-		case 2:
+		case '2':
+			dao->UpdateQuestionTitle();
 			return;
-		case 3:
+		case '3':
+			dao->UpdateQuestionContents();
 			return;
-		case 0:
+		case '0':
 			return;
 		default:
 			return;
@@ -654,11 +659,13 @@ void MainController::updateResponseControl()
 
 		switch (select)
 		{
-		case 1:
+		case '1':
+			dao->UpdateResponseID();
 			return;
-		case 2:
+		case '2':
+			dao->UpdateResponseContents();
 			return;
-		case 0:
+		case '0':
 			return;
 		default:
 			return;
@@ -683,14 +690,16 @@ void MainController::updateDomainControl()
 
 		switch (select)
 		{
-		case 1:
-			
+		case '1':
+			dao->UpdateDomainName();
 			return;
-		case 2:
+		case '2':
+			dao->UpdateDomainCompany();
 			return;
-		case 3:
+		case '3':
+			dao->UpdateDomainParentDomain();
 			return;
-		case 0:
+		case '0':
 			return;
 		default:
 			return;
@@ -715,11 +724,13 @@ void MainController::updateUsersControl()
 
 		switch (select)
 		{
-		case 1:
+		case '1':
+			dao->UpdateUsersEmail();
 			return;
-		case 2:
+		case '2':
+			dao->UpdateUsersJob();
 			return;
-		case 0:
+		case '0':
 			return;
 		default:
 			return;
