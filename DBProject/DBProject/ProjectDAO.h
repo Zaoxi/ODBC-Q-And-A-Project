@@ -167,7 +167,7 @@ public:
 	bool GetbIsConnected();
 	void PrintAllArea();
 	// 선택된 분야의 질문을 출력, 2 Table Join
-	void PrintQuestionsInSeletedArea();
+	void PrintQuestionsInSelectedArea();
 	// 선택된 분야의 유저 정보를 출력, 3 Table Join
 	void PrintUsersInSelectedArea();
 	// 선택된 분야의 답변 정보 출력 , 3Table Join

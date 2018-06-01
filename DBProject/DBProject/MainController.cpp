@@ -122,7 +122,7 @@ void MainController::selectAreaControl()
 		switch (select)
 		{
 		case '1':
-			dao->PrintQuestionsInSeletedArea();
+			dao->PrintQuestionsInSelectedArea();
 			break;
 		case '2':
 			dao->PrintUsersInSelectedArea();

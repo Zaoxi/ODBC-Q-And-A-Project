@@ -195,7 +195,7 @@ void ProjectDAO::PrintAllArea()
 	}
 }
 
-void ProjectDAO::PrintQuestionsInSeletedArea()
+void ProjectDAO::PrintQuestionsInSelectedArea()
 {
 	SQLHSTMT hStmt;
 	char bigClass[LENGTH_BIGCLASS];
