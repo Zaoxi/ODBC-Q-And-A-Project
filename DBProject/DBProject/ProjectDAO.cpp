@@ -104,12 +104,13 @@ void ProjectDAO::InitializeAreaExpert()
 	HSTMT hStmt;
 	list<CheckArea> areaList;
 	CheckArea * area;
-	hash_map<USERCOUNT, int> userList;
+	list<USERCOUNT> userList;
+	list<int> countList;
 	USERCOUNT * user;
-	int maxCount = 0;
 	USERCOUNT maxUser;
+	int maxCount = 0;
 	SQLINTEGER nullID;
-
+	
 	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 	{
 		sprintf((char*)query, "SELECT AREA_BIG_CLASS, AREA_SUB_CLASS FROM AREA");
@@ -119,7 +120,7 @@ void ProjectDAO::InitializeAreaExpert()
 			area = new CheckArea();
 			SQLBindCol(hStmt, 1, SQL_C_CHAR, area->bigClass, LENGTH_BIGCLASS, NULL);
 			SQLBindCol(hStmt, 2, SQL_C_CHAR, area->subClass, LENGTH_SUBCLASS, NULL);
-
+			
 			if (SQLFetch(hStmt) != SQL_NO_DATA)
 			{
 				areaList.push_back((*area));
@@ -147,7 +148,7 @@ void ProjectDAO::InitializeAreaExpert()
 				user = new USERCOUNT();
 				SQLBindCol(hStmt, 1, SQL_C_CHAR, user->domain, LENGTH_DOMAIN_NUM, NULL);
 				SQLBindCol(hStmt, 2, SQL_C_CHAR, user->ID, LENGTH_ID, &nullID);
-
+				
 				if (SQLFetch(hStmt) == SQL_NO_DATA)
 				{
 					delete user;
@@ -155,19 +156,23 @@ void ProjectDAO::InitializeAreaExpert()
 				}
 				if (nullID != SQL_NULL_DATA)
 				{
-					hash_map<USERCOUNT, int>::iterator userIter = userList.begin();
+					list<USERCOUNT>::iterator userIter = userList.begin();
+					list<int>::iterator userCountIter = countList.begin();
 					while (userIter != userList.end())
 					{
-						if (strcmp((char*)userIter->first.domain, (char*)user->domain) == 0 
-							&& strcmp((char*)userIter->first.ID, (char*)user->ID) == 0)
+						if (strcmp((char*)(*userIter).domain, (char*)user->domain) == 0 
+							&& strcmp((char*)(*userIter).ID, (char*)user->ID) == 0)
 						{
-							userIter->second++;
+							(*userCountIter)++;
+							cout << (*userCountIter);
 							continue;
 						}
+						userCountIter++;
 						userIter++;
 					}
-
-					userList.insert(hash_map<USERCOUNT, int>::value_type(*user, 1));
+					
+					userList.push_back(*user);
+					countList.push_back(1);
 				}
 				else
 				{
@@ -178,23 +183,25 @@ void ProjectDAO::InitializeAreaExpert()
 			SQLCloseCursor(hStmt);
 			SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 		}
-		hash_map<USERCOUNT, int>::iterator userIter = userList.begin();
+		list<USERCOUNT>::iterator userIter = userList.begin();
+		list<int>::iterator userCountIter = countList.begin();
 		while (userIter != userList.end())
 		{
-			if (maxCount < userIter->second)
+			if (maxCount <= (*userCountIter))
 			{
-				maxCount = userIter->second;
-				strcpy((char*)maxUser.domain, (char*)userIter->first.domain);
-				strcpy((char*)maxUser.ID, (char*)userIter->first.ID);
+				maxCount = (*userCountIter);
+				strcpy((char*)maxUser.ID, (char*)userIter->ID);
+				strcpy((char*)maxUser.domain, (char*)userIter->domain);
 			}
-			delete &(userIter->first);
+			//delete &(userIter);
 			userIter++;
 		}
+
 		if (!userList.empty())
 		{
 			if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 			{
-				sprintf((char*)query, "UPDATE AREA SET AREA_EXPERT_DOMAIN_NUM = %s, AREA_EXPERT_ID = '%s' WHERE AREA_BIG_CLASS = '%s' AND AREA_SUB_CLASS = '%s'"
+				sprintf((char*)query, "UPDATE AREA SET EXPERT_DOMAIN_NUM = %s, EXPERT_ID = '%s' WHERE AREA_BIG_CLASS = '%s' AND AREA_SUB_CLASS = '%s'"
 					, maxUser.domain, maxUser.ID, areaIter->bigClass, areaIter->subClass);
 				SQLExecDirect(hStmt, query, SQL_NTS);
 
@@ -202,7 +209,10 @@ void ProjectDAO::InitializeAreaExpert()
 				SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 			}
 		}
-		delete &areaIter;
+		userList.clear();
+		countList.clear();
+		maxCount = 0;
+		/*delete &(*areaIter);*/
 		areaIter++;
 	}
 }
@@ -214,6 +224,7 @@ ProjectDAO::ProjectDAO()
 	if (bisConnected)
 	{
 		InitializeAreaCount();
+		InitializeAreaExpert();
 		printf("Connection Success!!\n");
 	} // DB 연결 실패
 	else
@@ -1976,6 +1987,8 @@ void ProjectDAO::InsertDomain()
 			SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 		}
 	}
+
+	cout << domain.domainName << "이(가) 등록되었습니다." << endl;
 }
 
 void ProjectDAO::InsertUsers()
@@ -2959,30 +2972,28 @@ void ProjectDAO::PrintAllQuestion()
 		sprintf((char*)query, "SELECT Q.QUE_NUM, Q.QUE_ID, D.DOMAIN_NAME, Q.QUE_DATE, Q.QUE_TITLE FROM QUESTION AS Q, DOMAIN AS D WHERE Q.QUE_DOMAIN_NUM = D.DOMAIN_NUM");
 		SQLExecDirect(hStmt, query, SQL_NTS);
 
-		while (true)
+		SQLBindCol(hStmt, 1, SQL_C_CHAR, question.queNum, LENGTH_QUENUM, NULL);
+		SQLBindCol(hStmt, 2, SQL_C_CHAR, question.queID, LENGTH_ID, &(nullQuestion.queID));
+		SQLBindCol(hStmt, 3, SQL_C_CHAR, question.queDomain, LENGTH_DOMAIN_NAME, NULL);
+		SQLBindCol(hStmt, 4, SQL_C_CHAR, question.queDate, LENGTH_DATE, &(nullQuestion.queDate));
+		SQLBindCol(hStmt, 5, SQL_C_CHAR, question.queTitle, LENGTH_TITLE, NULL);
+
+		printf("%-5s %-20s %-20s %-15s %-20s \n", "Q.NUM", "Q.ID", "Q.DOMAIN", "Q.DATE", "Q.TITLE");
+		while (SQLFetch(hStmt) != SQL_NO_DATA)
 		{
-			SQLBindCol(hStmt, 1, SQL_C_CHAR, question.queNum, LENGTH_QUENUM, NULL);
-			SQLBindCol(hStmt, 2, SQL_C_CHAR, question.queID, LENGTH_ID, &(nullQuestion.queID));
-			SQLBindCol(hStmt, 3, SQL_C_CHAR, question.queDomain, LENGTH_DOMAIN_NAME, NULL);
-			SQLBindCol(hStmt, 4, SQL_C_CHAR, question.queDate, LENGTH_DATE, &(nullQuestion.queDate));
-			SQLBindCol(hStmt, 5, SQL_C_CHAR, question.queTitle, LENGTH_TITLE, NULL);
-
-			printf("%-5s %-20s %-20s %-15s %-20s \n", "Q.NUM", "Q.ID", "Q.DOMAIN", "Q.DATE", "Q.TITLE");
-			while (SQLFetch(hStmt) != SQL_NO_DATA)
+			printf("%-5s ", question.queNum);
+			if (nullQuestion.queID == SQL_NULL_DATA)
 			{
-				printf("%-5s ", question.queNum);
-				if (nullQuestion.queID == SQL_NULL_DATA)
-				{
-					printf("%-20s ", "NULL");
-				}
-				else
-				{
-					printf("%-20s ", question.queID);
-				}
-
-				printf("%-20s %-15s %-20s \n", question.queDomain, question.queDate, question.queTitle);
+				printf("%-20s ", "NULL");
 			}
+			else
+			{
+				printf("%-20s ", question.queID);
+			}
+
+			printf("%-20s %-15s %-20s \n", question.queDomain, question.queDate, question.queTitle);
 		}
+
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	}
@@ -2997,7 +3008,7 @@ void ProjectDAO::PrintAllResponse()
 
 	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 	{
-		sprintf((char*)query, "SELECT QR.QUE_NUM, R.RES_NUM, D.DOMAIN_NAME, R.RES_ID, R.RES_DATE FROM RESPOND AS QR, RESPONSE AS R, DOMAIN AS D WHERE R.RES_NUM = QR.RES_NUM, R.RES_DOMAIN_NUM = D.DOMAIN_NUM");
+		sprintf((char*)query, "SELECT QR.QUE_NUM, R.RES_NUM, D.DOMAIN_NAME, R.RES_ID, R.RES_DATE FROM RESPOND AS QR, RESPONSE AS R, DOMAIN AS D WHERE R.RES_NUM = QR.RES_NUM AND R.RES_DOMAIN_NUM = D.DOMAIN_NUM");
 		SQLExecDirect(hStmt, query, SQL_NTS);
 
 		SQLBindCol(hStmt, 1, SQL_C_CHAR, response.queNum, LENGTH_QUENUM, NULL);
@@ -3044,7 +3055,7 @@ void ProjectDAO::PrintAllDomain()
 
 	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 	{
-		sprintf((char*)query, "SELECT D.DOMAIN_NUM, D.DOMAIN_NAME, D.DOMAIN_PARENT, D.DOMAIN_COMPANY FROM DOMAIN AS D");
+		sprintf((char*)query, "SELECT D.DOMAIN_NUM, D.DOMAIN_NAME, D.DOMAIN_PARENT, D.COMPANY_NAME FROM DOMAIN AS D");
 		SQLExecDirect(hStmt, query, SQL_NTS);
 		SQLBindCol(hStmt, 1, SQL_C_CHAR, domain.domainNum, LENGTH_QUENUM, NULL);
 		SQLBindCol(hStmt, 2, SQL_C_CHAR, domain.domainName, LENGTH_DOMAIN_NAME, NULL);
@@ -3095,7 +3106,7 @@ void ProjectDAO::PrintAllUsers()
 		SQLBindCol(hStmt, 4, SQL_C_CHAR, users.userEmail, LENGTH_EMAIL, &(nullUsers.userEmail));
 		SQLBindCol(hStmt, 5, SQL_C_CHAR, users.userJob, LENGTH_JOB, &(nullUsers.userJob));
 
-		printf("%-20s %-20s %-10s %-20s %-20s", "D.NAME", "U.ID", "U.DATE", "U.EMAIL", "U.JOB");
+		printf("%-20s %-20s %-10s %-20s %-20s \n", "D.NAME", "U.ID", "U.DATE", "U.EMAIL", "U.JOB");
 		while (SQLFetch(hStmt) != SQL_NO_DATA)
 		{
 			printf("%-20s %-20s ", users.domainName, users.userID);
