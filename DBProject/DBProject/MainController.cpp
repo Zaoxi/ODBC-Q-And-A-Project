@@ -760,14 +760,19 @@ void MainController::printMenuControl()
 		switch (select)
 		{
 		case '1':
+			dao->PrintAllArea();
 			return;
 		case '2':
+			dao->PrintAllQuestion();
 			return;
 		case '3':
+			dao->PrintAllResponse();
 			return;
 		case '4':
+			dao->PrintAllDomain();
 			return;
 		case '5':
+			dao->PrintAllUsers();
 			return;
 		case '0':
 			return;

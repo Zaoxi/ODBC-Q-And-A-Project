@@ -62,6 +62,12 @@ typedef struct _users
 	SQLCHAR userJob[LENGTH_JOB];
 } USERS;
 
+typedef struct _userCount
+{
+	SQLCHAR ID[LENGTH_ID];
+	SQLCHAR domain[LENGTH_DOMAIN_NUM];
+} USERCOUNT;
+
 typedef struct _nullusers
 {
 	SQLINTEGER joinDate;
@@ -103,6 +109,15 @@ typedef struct _Response
 	SQLCHAR contents[LENGTH_CONTENTS];
 } Response;
 
+typedef struct _RESPONSE
+{
+	SQLCHAR queNum[LENGTH_QUENUM];
+	SQLCHAR resNum[LENGTH_QUENUM];
+	SQLCHAR domain[LENGTH_DOMAIN_NAME];
+	SQLCHAR ID[LENGTH_ID];
+	SQLCHAR date[LENGTH_DATE];
+} RESPONSE_;
+
 typedef struct _nullResponse
 {
 	SQLINTEGER resID;
@@ -114,11 +129,13 @@ typedef struct _domain
 	SQLCHAR domainNum[LENGTH_DOMAIN_NUM];
 	SQLCHAR domainName[LENGTH_DOMAIN_NAME];
 	SQLCHAR domainCompany[LENGTH_DOMAIN_COMPANY];
+	SQLCHAR domainParent[LENGTH_QUENUM];
 } DOMAIN_;
 
 typedef struct _nullDomain
 {
 	SQLINTEGER domainCompany;
+	SQLINTEGER parentNum;
 } NULLDOMAIN;
 
 #pragma endregion
@@ -137,6 +154,7 @@ private:
 
 	// Area 테이블의 질문 개수 속성을 초기화 하는 메소드
 	void InitializeAreaCount();
+	void InitializeAreaExpert();
 	// 해당 분야가 존재하는지 반환
 	bool bcheckArea(char * bigClass, char * subClass);
 	// 해당 ID를 가진 유저가 존재하는지 반환
@@ -165,7 +183,6 @@ public:
 	ProjectDAO();
 	~ProjectDAO();
 	bool GetbIsConnected();
-	void PrintAllArea();
 	// 선택된 분야의 질문을 출력, 2 Table Join
 	void PrintQuestionsInSelectedArea();
 	// 선택된 분야의 유저 정보를 출력, 3 Table Join
@@ -227,6 +244,11 @@ public:
 	void UpdateUsersEmail();
 	void UpdateUsersJob();
 
+	void PrintAllArea();
+	void PrintAllQuestion();
+	void PrintAllResponse();
+	void PrintAllDomain();
+	void PrintAllUsers();
 };
 
 /* 기본적인 바탕

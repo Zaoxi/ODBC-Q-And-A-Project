@@ -78,14 +78,14 @@ void ProjectDAO::InitializeAreaCount()
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	}
-	
+
 	iter = checkAreaList->begin();
 	while (iter != checkAreaList->end())
 	{
 		if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 		{
 			sprintf((char *)query, "UPDATE AREA SET COUNT_QUERY = %s WHERE AREA_BIG_CLASS = '%s' AND AREA_SUB_CLASS = '%s'", (*iter)->countQue, (*iter)->bigClass, (*iter)->subClass);
-			
+
 
 			SQLExecDirect(hStmt, query, SQL_NTS);
 
@@ -97,6 +97,114 @@ void ProjectDAO::InitializeAreaCount()
 		}
 	}
 	delete checkAreaList;
+}
+
+void ProjectDAO::InitializeAreaExpert()
+{
+	HSTMT hStmt;
+	list<CheckArea> areaList;
+	CheckArea * area;
+	hash_map<USERCOUNT, int> userList;
+	USERCOUNT * user;
+	int maxCount = 0;
+	USERCOUNT maxUser;
+	SQLINTEGER nullID;
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "SELECT AREA_BIG_CLASS, AREA_SUB_CLASS FROM AREA");
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		while (true)
+		{
+			area = new CheckArea();
+			SQLBindCol(hStmt, 1, SQL_C_CHAR, area->bigClass, LENGTH_BIGCLASS, NULL);
+			SQLBindCol(hStmt, 2, SQL_C_CHAR, area->subClass, LENGTH_SUBCLASS, NULL);
+
+			if (SQLFetch(hStmt) != SQL_NO_DATA)
+			{
+				areaList.push_back((*area));
+			}
+			else
+			{
+				delete area;
+				break;
+			}
+		}
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+
+	list<CheckArea>::iterator areaIter = areaList.begin();
+	while (areaIter != areaList.end())
+	{
+		if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+		{
+			sprintf((char*)query, "SELECT Q.QUE_DOMAIN_NUM, Q.QUE_ID FROM QUESTION AS Q WHERE Q.QUE_BIG_CLASS = '%s' AND Q.QUE_SUB_CLASS = '%s'", areaIter->bigClass, areaIter->subClass);
+			SQLExecDirect(hStmt, query, SQL_NTS);
+
+			while (true)
+			{
+				user = new USERCOUNT();
+				SQLBindCol(hStmt, 1, SQL_C_CHAR, user->domain, LENGTH_DOMAIN_NUM, NULL);
+				SQLBindCol(hStmt, 2, SQL_C_CHAR, user->ID, LENGTH_ID, &nullID);
+
+				if (SQLFetch(hStmt) == SQL_NO_DATA)
+				{
+					delete user;
+					break;
+				}
+				if (nullID != SQL_NULL_DATA)
+				{
+					hash_map<USERCOUNT, int>::iterator userIter = userList.begin();
+					while (userIter != userList.end())
+					{
+						if (strcmp((char*)userIter->first.domain, (char*)user->domain) == 0 
+							&& strcmp((char*)userIter->first.ID, (char*)user->ID) == 0)
+						{
+							userIter->second++;
+							continue;
+						}
+						userIter++;
+					}
+
+					userList.insert(hash_map<USERCOUNT, int>::value_type(*user, 1));
+				}
+				else
+				{
+					delete user;
+				}
+			}
+
+			SQLCloseCursor(hStmt);
+			SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+		}
+		hash_map<USERCOUNT, int>::iterator userIter = userList.begin();
+		while (userIter != userList.end())
+		{
+			if (maxCount < userIter->second)
+			{
+				maxCount = userIter->second;
+				strcpy((char*)maxUser.domain, (char*)userIter->first.domain);
+				strcpy((char*)maxUser.ID, (char*)userIter->first.ID);
+			}
+			delete &(userIter->first);
+			userIter++;
+		}
+		if (!userList.empty())
+		{
+			if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+			{
+				sprintf((char*)query, "UPDATE AREA SET AREA_EXPERT_DOMAIN_NUM = %s, AREA_EXPERT_ID = '%s' WHERE AREA_BIG_CLASS = '%s' AND AREA_SUB_CLASS = '%s'"
+					, maxUser.domain, maxUser.ID, areaIter->bigClass, areaIter->subClass);
+				SQLExecDirect(hStmt, query, SQL_NTS);
+
+				SQLCloseCursor(hStmt);
+				SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+			}
+		}
+		delete &areaIter;
+		areaIter++;
+	}
 }
 
 ProjectDAO::ProjectDAO()
@@ -131,69 +239,6 @@ bool ProjectDAO::GetbIsConnected()
 }
 
 #pragma region AREA 테이블 관련 작업
-
-void ProjectDAO::PrintAllArea()
-{
-	SQLHSTMT hStmt;
-
-	SQLSMALLINT colCount = -1;
-	SQLCHAR areaData[30][100];
-	SQLINTEGER nullData[30];
-
-	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
-	{
-		sprintf((char *)query, "SELECT * FROM AREA");
-		SQLExecDirect(hStmt, query, SQL_NTS);
-		SQLNumResultCols(hStmt, &colCount);
-
-		for (int i = 0; i < colCount; i++)
-		{
-			// AREA CONTENTS 따로 처리
-			if (i < 2)
-			{
-				SQLBindCol(hStmt, i + 1, SQL_C_CHAR, areaData[i], 100, &nullData[i]);
-			}
-			else if (i > 2)
-			{
-				SQLBindCol(hStmt, i + 1, SQL_C_CHAR, areaData[i - 1], 100, &nullData[i - 1]);
-			}
-
-		}
-		SQLBindCol(hStmt, 3, SQL_C_CHAR, areaData[colCount - 1], 100, &nullData[colCount - 1]);
-
-		printf("%-10s %-10s %-10s %-10s %-10s \n", "대분류", "소분류", "질문 수", "전문가ID", "도메인번호");
-		while (SQLFetch(hStmt) != SQL_NO_DATA)
-		{
-			for (int i = 0; i < colCount - 1; i++)
-			{
-				if (nullData[i] == SQL_NULL_DATA)
-				{
-					printf("%-10s ", "NULL");
-				}
-				else
-				{
-					printf("%-10s ", areaData[i]);
-				}
-			}
-
-			printf("\n");
-
-			if (nullData[colCount - 1] == SQL_NULL_DATA)
-			{
-				printf("%s ", "NULL");
-			}
-			else
-			{
-				printf("%s ", areaData[colCount - 1]);
-			}
-
-			printf("\n\n");
-		}
-
-		SQLCloseCursor(hStmt);
-		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
-	}
-}
 
 void ProjectDAO::PrintQuestionsInSelectedArea()
 {
@@ -738,7 +783,7 @@ void ProjectDAO::PrintResponseUsingContents(char * contents)
 	SQLHSTMT hStmt;
 	RESPONSE response;
 	NULLRESPONSE nullRes;
-	
+
 	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
 	{
 		sprintf((char*)query, "SELECT R.RES_NUM, R.RES_ID, D.DOMAIN_NAME, R.RES_DATE, R.RES_CONTENTS FROM RESPONSE AS R, DOMAIN AS D WHERE R.RES_CONTENTS LIKE '%%%s%%' AND R.RES_DOMAIN_NUM = D.DOMAIN_NUM", contents);
@@ -1765,7 +1810,7 @@ void ProjectDAO::InsertResponse()
 			{
 				cout << "내용 >> ";
 				cin.getline((char*)response.resContents, LENGTH_CONTENTS);
-				
+
 				if (bcheckString((char*)response.resContents))
 				{
 					break;
@@ -2034,6 +2079,8 @@ void ProjectDAO::DeleteArea()
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	}
+
+	cout << bigClass << " - " << subClass << " 분야가 삭제되었습니다." << endl;
 }
 
 void ProjectDAO::DeleteQuestion()
@@ -2097,6 +2144,15 @@ void ProjectDAO::DeleteQuestion()
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	}
 
+	cout << queNum << "번의 질문이 삭제되었습니다." << endl;
+	resIter = resNumList.begin();
+
+	while (resIter != resNumList.end())
+	{
+		cout << *resIter << "번 ";
+	}
+	cout << "의 답변이 삭제되었습니다." << endl;
+
 	InitializeAreaCount();
 }
 
@@ -2128,6 +2184,8 @@ void ProjectDAO::DeleteResponse()
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	}
+
+	cout << resNum << "번의 답변이 삭제되었습니다." << endl;
 }
 
 void ProjectDAO::DeleteDomain()
@@ -2194,6 +2252,8 @@ void ProjectDAO::DeleteDomain()
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	}
+
+	cout << domainNum << "번의 도메인과 그와 관련된 모든 내용이 삭제되었습니다." << endl;
 }
 
 void ProjectDAO::DeleteUsers()
@@ -2240,6 +2300,8 @@ void ProjectDAO::DeleteUsers()
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	}
+
+	cout << domainNum << "번의 " << ID << "이(가) 삭제되었습니다." << endl;
 }
 
 #pragma endregion
@@ -2261,7 +2323,7 @@ void ProjectDAO::UpdateArea()
 		cin.getline(srcBigClass, LENGTH_BIGCLASS);
 		cout << "소분류 >> ";
 		cin.getline(srcSubClass, LENGTH_SUBCLASS);
-		
+
 		if (bcheckArea(srcBigClass, srcSubClass))
 		{
 			break;
@@ -2303,7 +2365,7 @@ void ProjectDAO::UpdateArea()
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	}
-
+	cout << srcBigClass << " - " << srcSubClass << " 분야가 " << dstBigClass << " - " << dstSubClass << "로 수정되었습니다." << endl;
 	InitializeAreaCount();
 }
 
@@ -2388,6 +2450,8 @@ void ProjectDAO::UpdateQuestionID()
 			cout << "잘못된 입력입니다." << endl;
 		}
 	}
+
+	cout << queNum << "번의 질문을 수정하였습니다." << endl;
 }
 
 void ProjectDAO::UpdateQuestionTitle()
@@ -2434,6 +2498,8 @@ void ProjectDAO::UpdateQuestionTitle()
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	}
+
+	cout << queNum << "번의 질문을 수정하였습니다." << endl;
 }
 
 void ProjectDAO::UpdateQuestionContents()
@@ -2480,6 +2546,8 @@ void ProjectDAO::UpdateQuestionContents()
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	}
+
+	cout << queNum << "번의 질문을 수정하였습니다." << endl;
 }
 
 void ProjectDAO::UpdateResponseID()
@@ -2563,6 +2631,8 @@ void ProjectDAO::UpdateResponseID()
 			cout << "잘못된 입력입니다." << endl;
 		}
 	}
+
+	cout << resNum << "번의 답변을 수정하였습니다." << endl;
 }
 
 void ProjectDAO::UpdateResponseContents()
@@ -2609,6 +2679,8 @@ void ProjectDAO::UpdateResponseContents()
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	}
+
+	cout << resNum << "번의 답변을 수정하였습니다." << endl;
 }
 
 void ProjectDAO::UpdateDomainName()
@@ -2628,6 +2700,8 @@ void ProjectDAO::UpdateDomainName()
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	}
+
+	cout << domainNum << "번의 도메인을 수정하였습니다." << endl;
 }
 
 void ProjectDAO::UpdateDomainCompany()
@@ -2647,6 +2721,8 @@ void ProjectDAO::UpdateDomainCompany()
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	}
+
+	cout << domainNum << "번의 도메인을 수정하였습니다." << endl;
 }
 
 void ProjectDAO::UpdateDomainParentDomain()
@@ -2711,6 +2787,8 @@ void ProjectDAO::UpdateDomainParentDomain()
 			SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 		}
 	}
+
+	cout << domainNum << "번의 도메인을 수정하였습니다." << endl;
 }
 
 void ProjectDAO::UpdateUsersEmail()
@@ -2759,6 +2837,8 @@ void ProjectDAO::UpdateUsersEmail()
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	}
+
+	cout << domainNum << "번의 " << ID << " 유저 정보를 수정하였습니다." << endl;
 }
 
 void ProjectDAO::UpdateUsersJob()
@@ -2791,6 +2871,263 @@ void ProjectDAO::UpdateUsersJob()
 	{
 		sprintf((char*)query, "UPDATE USERS SET USER_JOB = '%s' WHERE USER_DOMAIN_NUM = %d AND USER_ID = '%s'", job, domainNum, ID);
 		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+
+	cout << domainNum << "번의 " << ID << " 유저 정보를 수정하였습니다." << endl;
+}
+
+#pragma endregion
+
+
+
+
+#pragma region PRINT 관련 작업
+
+void ProjectDAO::PrintAllArea()
+{
+	SQLHSTMT hStmt;
+
+	SQLSMALLINT colCount = -1;
+	SQLCHAR areaData[30][100];
+	SQLINTEGER nullData[30];
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char *)query, "SELECT * FROM AREA");
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLNumResultCols(hStmt, &colCount);
+
+		for (int i = 0; i < colCount; i++)
+		{
+			// AREA CONTENTS 따로 처리
+			if (i < 2)
+			{
+				SQLBindCol(hStmt, i + 1, SQL_C_CHAR, areaData[i], 100, &nullData[i]);
+			}
+			else if (i > 2)
+			{
+				SQLBindCol(hStmt, i + 1, SQL_C_CHAR, areaData[i - 1], 100, &nullData[i - 1]);
+			}
+
+		}
+		SQLBindCol(hStmt, 3, SQL_C_CHAR, areaData[colCount - 1], 100, &nullData[colCount - 1]);
+
+		printf("%-10s %-10s %-10s %-10s %-10s \n", "대분류", "소분류", "질문 수", "전문가ID", "도메인번호");
+		while (SQLFetch(hStmt) != SQL_NO_DATA)
+		{
+			for (int i = 0; i < colCount - 1; i++)
+			{
+				if (nullData[i] == SQL_NULL_DATA)
+				{
+					printf("%-10s ", "NULL");
+				}
+				else
+				{
+					printf("%-10s ", areaData[i]);
+				}
+			}
+
+			printf("\n");
+
+			if (nullData[colCount - 1] == SQL_NULL_DATA)
+			{
+				printf("%s ", "NULL");
+			}
+			else
+			{
+				printf("%s ", areaData[colCount - 1]);
+			}
+
+			printf("\n\n");
+		}
+
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+void ProjectDAO::PrintAllQuestion()
+{
+	HSTMT hStmt;
+	QUESTION question;
+	NULLQUESTION nullQuestion;
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "SELECT Q.QUE_NUM, Q.QUE_ID, D.DOMAIN_NAME, Q.QUE_DATE, Q.QUE_TITLE FROM QUESTION AS Q, DOMAIN AS D WHERE Q.QUE_DOMAIN_NUM = D.DOMAIN_NUM");
+		SQLExecDirect(hStmt, query, SQL_NTS);
+
+		while (true)
+		{
+			SQLBindCol(hStmt, 1, SQL_C_CHAR, question.queNum, LENGTH_QUENUM, NULL);
+			SQLBindCol(hStmt, 2, SQL_C_CHAR, question.queID, LENGTH_ID, &(nullQuestion.queID));
+			SQLBindCol(hStmt, 3, SQL_C_CHAR, question.queDomain, LENGTH_DOMAIN_NAME, NULL);
+			SQLBindCol(hStmt, 4, SQL_C_CHAR, question.queDate, LENGTH_DATE, &(nullQuestion.queDate));
+			SQLBindCol(hStmt, 5, SQL_C_CHAR, question.queTitle, LENGTH_TITLE, NULL);
+
+			printf("%-5s %-20s %-20s %-15s %-20s \n", "Q.NUM", "Q.ID", "Q.DOMAIN", "Q.DATE", "Q.TITLE");
+			while (SQLFetch(hStmt) != SQL_NO_DATA)
+			{
+				printf("%-5s ", question.queNum);
+				if (nullQuestion.queID == SQL_NULL_DATA)
+				{
+					printf("%-20s ", "NULL");
+				}
+				else
+				{
+					printf("%-20s ", question.queID);
+				}
+
+				printf("%-20s %-15s %-20s \n", question.queDomain, question.queDate, question.queTitle);
+			}
+		}
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+
+}
+
+void ProjectDAO::PrintAllResponse()
+{
+	HSTMT hStmt;
+	RESPONSE_ response;
+	NULLRESPONSE nullResponse;
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "SELECT QR.QUE_NUM, R.RES_NUM, D.DOMAIN_NAME, R.RES_ID, R.RES_DATE FROM RESPOND AS QR, RESPONSE AS R, DOMAIN AS D WHERE R.RES_NUM = QR.RES_NUM, R.RES_DOMAIN_NUM = D.DOMAIN_NUM");
+		SQLExecDirect(hStmt, query, SQL_NTS);
+
+		SQLBindCol(hStmt, 1, SQL_C_CHAR, response.queNum, LENGTH_QUENUM, NULL);
+		SQLBindCol(hStmt, 2, SQL_C_CHAR, response.resNum, LENGTH_QUENUM, NULL);
+		SQLBindCol(hStmt, 3, SQL_C_CHAR, response.domain, LENGTH_DOMAIN_NAME, NULL);
+		SQLBindCol(hStmt, 4, SQL_C_CHAR, response.ID, LENGTH_ID, &(nullResponse.resID));
+		SQLBindCol(hStmt, 5, SQL_C_CHAR, response.date, LENGTH_DATE, &(nullResponse.resDate));
+
+		printf("%-5s %-5s %-20s %-20s %-15s \n", "Q.NUM", "R.NUM", "R.DOMAIN", "R.ID", "R.DATE");
+		while (SQLFetch(hStmt) != SQL_NO_DATA)
+		{
+			printf("%-5s %-5s %-20s ", response.queNum, response.resNum, response.domain);
+
+			if (nullResponse.resID == SQL_NULL_DATA)
+			{
+				printf("%-20s ", "NULL");
+			}
+			else
+			{
+				printf("%-20s ", response.ID);
+			}
+
+			if (nullResponse.resDate == SQL_NULL_DATA)
+			{
+				printf("%-15s ", "NULL");
+			}
+			else
+			{
+				printf("%-15s ", response.date);
+			}
+			printf("\n");
+		}
+
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+void ProjectDAO::PrintAllDomain()
+{
+	HSTMT hStmt;
+	DOMAIN_ domain;
+	NULLDOMAIN nullDomain;
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "SELECT D.DOMAIN_NUM, D.DOMAIN_NAME, D.DOMAIN_PARENT, D.DOMAIN_COMPANY FROM DOMAIN AS D");
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLBindCol(hStmt, 1, SQL_C_CHAR, domain.domainNum, LENGTH_QUENUM, NULL);
+		SQLBindCol(hStmt, 2, SQL_C_CHAR, domain.domainName, LENGTH_DOMAIN_NAME, NULL);
+		SQLBindCol(hStmt, 3, SQL_C_CHAR, domain.domainParent, LENGTH_QUENUM, &(nullDomain.parentNum));
+		SQLBindCol(hStmt, 4, SQL_C_CHAR, domain.domainCompany, LENGTH_DOMAIN_COMPANY, &(nullDomain.domainCompany));
+
+		printf("%-5s %-20s %-8s %-20s \n", "D.NUM", "D.NAME", "D.PARENT", "D.COMPANY");
+		while (SQLFetch(hStmt) != SQL_NO_DATA)
+		{
+			printf("%-5s %-20s ", domain.domainNum, domain.domainName);
+			if (nullDomain.parentNum == SQL_NULL_DATA)
+			{
+				printf("%-8s ", "NULL");
+			}
+			else
+			{
+				printf("%-8s ", domain.domainParent);
+			}
+			if (nullDomain.domainCompany == SQL_NULL_DATA)
+			{
+				printf("%-20s ", "NULL");
+			}
+			else
+			{
+				printf("%-20s ", domain.domainCompany);
+			}
+			printf("\n");
+		}
+
+		SQLCloseCursor(hStmt);
+		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	}
+}
+
+void ProjectDAO::PrintAllUsers()
+{
+	HSTMT hStmt;
+	USERS users;
+	NULLUSERS nullUsers;
+
+	if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_SUCCESS)
+	{
+		sprintf((char*)query, "SELECT D.DOMAIN_NAME, U.USER_ID, U.USER_JOIN_DATE, U.USER_EMAIL, U.USER_JOB FROM USERS AS U, DOMAIN AS D WHERE U.USER_DOMAIN_NUM = D.DOMAIN_NUM");
+		SQLExecDirect(hStmt, query, SQL_NTS);
+		SQLBindCol(hStmt, 1, SQL_C_CHAR, users.domainName, LENGTH_DOMAIN_NAME, NULL);
+		SQLBindCol(hStmt, 2, SQL_C_CHAR, users.userID, LENGTH_ID, NULL);
+		SQLBindCol(hStmt, 3, SQL_C_CHAR, users.userJoinDate, LENGTH_DATE, &(nullUsers.joinDate));
+		SQLBindCol(hStmt, 4, SQL_C_CHAR, users.userEmail, LENGTH_EMAIL, &(nullUsers.userEmail));
+		SQLBindCol(hStmt, 5, SQL_C_CHAR, users.userJob, LENGTH_JOB, &(nullUsers.userJob));
+
+		printf("%-20s %-20s %-10s %-20s %-20s", "D.NAME", "U.ID", "U.DATE", "U.EMAIL", "U.JOB");
+		while (SQLFetch(hStmt) != SQL_NO_DATA)
+		{
+			printf("%-20s %-20s ", users.domainName, users.userID);
+
+			if (nullUsers.joinDate == SQL_NULL_DATA)
+			{
+				printf("%-10s ", "NULL");
+			}
+			else
+			{
+				printf("%-10s ", users.userJoinDate);
+			}
+			if (nullUsers.userEmail == SQL_NULL_DATA)
+			{
+				printf("%-20s ", "NULL");
+			}
+			else
+			{
+				printf("%-20s ", users.userEmail);
+			}
+			if (nullUsers.userJob == SQL_NULL_DATA)
+			{
+				printf("%-20s ", "NULL");
+			}
+			else
+			{
+				printf("%-20s ", users.userJob);
+			}
+			printf("\n");
+		}
+
+
 		SQLCloseCursor(hStmt);
 		SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 	}
